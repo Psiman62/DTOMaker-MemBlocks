@@ -1,3 +1,4 @@
+using DTOMaker.Core;
 using FluentAssertions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -11,7 +12,13 @@ namespace DTOMaker.Generator.Tests
 {
     public class GeneratorTests
     {
-        // todo write attribute replica tests
+        [Fact]
+        public void ConstantsValueChecks()
+        {
+            nameof(DomainAttribute).Should().Be(Constants.DomainAttribute);
+            nameof(EntityAttribute).Should().Be(Constants.EntityAttribute);
+            nameof(MemberAttribute).Should().Be(Constants.MemberAttribute);
+        }
 
         [Fact]
         public async Task Happy01_NoMembers()
