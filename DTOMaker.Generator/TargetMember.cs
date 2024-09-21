@@ -11,7 +11,7 @@ namespace DTOMaker.Generator
         public int FieldOffset { get; set; }
         public int FieldLength { get; set; }
         public bool IsBigEndian { get; set; } = false;
-        public string CodecTypeName => $"DTOMaker.Core.Codec_{MemberType}_{(IsBigEndian ? "BE" : "LE")}";
+        public string CodecTypeName => $"DTOMaker.Core.Codecs.Codec_{MemberType}_{(IsBigEndian ? "BE" : "LE")}";
 
 
         public bool CanEmit()
