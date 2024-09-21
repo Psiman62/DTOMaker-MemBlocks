@@ -1,8 +1,7 @@
-﻿using DTOMaker.Core;
+﻿using DTOMaker.Generator.CoreAttributes;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System;
 using System.Collections.Concurrent;
 using System.Linq;
 

@@ -11,6 +11,8 @@ namespace DTOMaker.Generator.Tests
 {
     public class GeneratorTests
     {
+        // todo write attribute replica tests
+
         [Fact]
         public async Task Happy01_NoMembers()
         {
