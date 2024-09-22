@@ -10,10 +10,10 @@ namespace MyOrg.Models
     public partial class MyOtherDTO
     {
         private const int BlockSize = 64;
-        private readonly Memory<byte> _block = new byte[BlockSize];
+        private readonly Memory<byte> _block;
         public ReadOnlyMemory<byte> Block => _block;
-        public MyOtherDTO() { }
-        public MyOtherDTO(ReadOnlySpan<byte> source) => source.Span.Slice(0, BlockSize).CopyTo(_block);
+        public MyOtherDTO() _block = new byte[BlockSize];
+        public MyOtherDTO(ReadOnlySpan<byte> source) => source.Slice(0, BlockSize).ToArray();
         // <field-map>
         //  Pos.  Len.  Type        Endian  Name
         //  ----  ----  --------    ------  --------
