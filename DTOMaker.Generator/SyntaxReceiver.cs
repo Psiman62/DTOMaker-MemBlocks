@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using DTOMaker.Core;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Concurrent;
@@ -7,12 +8,12 @@ using System.Linq;
 
 namespace DTOMaker.Generator
 {
-    public static class Constants
-    {
-        public const string DomainAttribute = nameof(DomainAttribute);
-        public const string EntityAttribute = nameof(EntityAttribute);
-        public const string MemberAttribute = nameof(MemberAttribute);
-    }
+    //public static class Constants
+    //{
+    //    public const string DomainAttribute = nameof(DomainAttribute);
+    //    public const string EntityAttribute = nameof(EntityAttribute);
+    //    public const string MemberAttribute = nameof(MemberAttribute);
+    //}
     internal class SyntaxReceiver : ISyntaxContextReceiver
     {
         private static T TryGetValue<T>(object? input, T defaultValue) => input is T value ? value : defaultValue;
@@ -25,7 +26,7 @@ namespace DTOMaker.Generator
                 && ids1.Modifiers.Any(SyntaxKind.PublicKeyword)
                 && ids1.Parent is NamespaceDeclarationSyntax nds1
                 && ids1.AttributeLists.Count > 0
-                && ids1.HasOneAttributeNamed(Constants.EntityAttribute))
+                && ids1.HasOneAttributeNamed(nameof(EntityAttribute)))
             {
                 Location ndsLocation = Location.Create(nds1.SyntaxTree, nds1.Span);
                 Location idsLocation = Location.Create(ids1.SyntaxTree, ids1.Span);
@@ -60,7 +61,7 @@ namespace DTOMaker.Generator
                         {
                             entity.SyntaxErrors.Add(
                                 new SyntaxDiagnostic(idsLocation, DiagnosticSeverity.Error,
-                                    $"Expected {Constants.EntityAttribute} attribute to have 1 argument, but it has {attributeArguments.Length}."));
+                                    $"Expected {nameof(EntityAttribute)} attribute to have 1 argument, but it has {attributeArguments.Length}."));
                         }
                     }
                 }
@@ -70,7 +71,7 @@ namespace DTOMaker.Generator
                 && pds2.Parent is InterfaceDeclarationSyntax ids2
                 && ids2.Parent is NamespaceDeclarationSyntax nds2
                 && pds2.AttributeLists.Count > 0
-                && pds2.HasOneAttributeNamed(Constants.MemberAttribute))
+                && pds2.HasOneAttributeNamed(nameof(MemberAttribute)))
             {
                 Location pdsLocation = Location.Create(pds2.SyntaxTree, pds2.Span);
                 string domainName = nds2.Name.ToString();
@@ -104,7 +105,7 @@ namespace DTOMaker.Generator
                         else
                         {
                             member.SyntaxErrors.Add(new SyntaxDiagnostic(pdsLocation, DiagnosticSeverity.Error,
-                                $"Expected {Constants.MemberAttribute} attribute to have 1 argument, but it has {attributeArguments.Length}"));
+                                $"Expected {nameof(MemberAttribute)} attribute to have 1 argument, but it has {attributeArguments.Length}"));
                         }
                     }
                 }
