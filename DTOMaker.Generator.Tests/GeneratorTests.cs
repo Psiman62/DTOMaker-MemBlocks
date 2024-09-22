@@ -1,4 +1,4 @@
-using DTOMaker.Core;
+using DTOMaker.Models;
 using FluentAssertions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -25,7 +25,7 @@ namespace DTOMaker.Generator.Tests
         {
             var inputSource =
                 """
-                using DTOMaker.Core;
+                using DTOMaker.Models;
                 namespace MyOrg.Models
                 {
                     [Entity(64)]
@@ -54,7 +54,7 @@ namespace DTOMaker.Generator.Tests
         {
             var inputSource =
                 """
-                using DTOMaker.Core;
+                using DTOMaker.Models;
                 namespace MyOrg.Models
                 {
                     [Entity(64)]
@@ -84,7 +84,7 @@ namespace DTOMaker.Generator.Tests
         {
             var inputSource =
                 """
-                using DTOMaker.Core;
+                using DTOMaker.Models;
                 namespace MyOrg.Models
                 {
                     [Entity(64)]
@@ -115,7 +115,7 @@ namespace DTOMaker.Generator.Tests
         {
             var inputSource =
                 """
-                using DTOMaker.Core;
+                using DTOMaker.Models;
                 namespace MyOrg.Models
                 {
                     [Entity(64)]
@@ -157,7 +157,7 @@ namespace DTOMaker.Generator.Tests
         {
             var inputSource =
                 """
-                using DTOMaker.Core;
+                using DTOMaker.Models;
                 namespace MyOrg.Models
                 {
                     [Entity(63)]
@@ -183,7 +183,7 @@ namespace DTOMaker.Generator.Tests
             // note: [Entity] attribute is missing
             var inputSource =
                 """
-                using DTOMaker.Core;
+                using DTOMaker.Models;
                 namespace MyOrg.Models
                 {
                     public interface IMyDTO

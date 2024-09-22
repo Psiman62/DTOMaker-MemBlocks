@@ -21,13 +21,13 @@ namespace MyOrg.Models
         // </field-map>
         public Double Field1
         {
-            get => DTOMaker.Core.Codecs.Codec_Double_LE.Instance.ReadFrom(_block.Slice(0, 8).Span);
-            set => DTOMaker.Core.Codecs.Codec_Double_LE.Instance.WriteTo(_block.Slice(0, 8).Span, value);
+            get => DTOMaker.Runtime.Codecs.Codec_Double_LE.Instance.ReadFrom(_block.Slice(0, 8).Span);
+            set => DTOMaker.Runtime.Codecs.Codec_Double_LE.Instance.WriteTo(_block.Slice(0, 8).Span, value);
         }
         public Int64 Field2
         {
-            get => DTOMaker.Core.Codecs.Codec_Int64_LE.Instance.ReadFrom(_block.Slice(8, 8).Span);
-            set => DTOMaker.Core.Codecs.Codec_Int64_LE.Instance.WriteTo(_block.Slice(8, 8).Span, value);
+            get => DTOMaker.Runtime.Codecs.Codec_Int64_LE.Instance.ReadFrom(_block.Slice(8, 8).Span);
+            set => DTOMaker.Runtime.Codecs.Codec_Int64_LE.Instance.WriteTo(_block.Slice(8, 8).Span, value);
         }
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace DTOMaker.Generator
@@ -44,22 +45,29 @@ namespace DTOMaker.Generator
                     message.Location));
             }
         }
-        public void Execute(GeneratorExecutionContext context)
+        private void CheckReferencedAssemblyNamesInclude(GeneratorExecutionContext context, Assembly assembly)
         {
-            if (context.SyntaxContextReceiver is not SyntaxReceiver syntaxReceiver) return;
-
-            // check that the users compilation references the expected libraries
-            if (!context.Compilation.ReferencedAssemblyNames.Any(ai => ai.Name.Equals("DTOMaker.Core", StringComparison.OrdinalIgnoreCase)))
+            string packageName = assembly.GetName().Name;
+            Version packageVersion = assembly.GetName().Version;
+            if (!context.Compilation.ReferencedAssemblyNames.Any(ai => ai.Name.Equals(packageName, StringComparison.OrdinalIgnoreCase)))
             {
+                // todo major version error/minor version warning
                 context.ReportDiagnostic(Diagnostic.Create(
                         new DiagnosticDescriptor(
                             "MFNSSG001", "DiagnosticTitle",
-                            "The generated code requires a reference to DTOMaker.Core",
+                            $"The generated code requires a reference to {packageName} (v{packageVersion} or later).",
                             "DiagnosticCategory",
                             DiagnosticSeverity.Warning,
                             true),
                             Location.None));
             }
+        }
+        public void Execute(GeneratorExecutionContext context)
+        {
+            if (context.SyntaxContextReceiver is not SyntaxReceiver syntaxReceiver) return;
+
+            // check that the users compilation references the expected libraries
+            CheckReferencedAssemblyNamesInclude(context, typeof(DTOMaker.Models.DomainAttribute).Assembly);
 
             foreach (var domain in syntaxReceiver.Domains.Values)
             {

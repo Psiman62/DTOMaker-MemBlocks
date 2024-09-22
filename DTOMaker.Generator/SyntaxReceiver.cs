@@ -1,4 +1,4 @@
-﻿using DTOMaker.Core;
+﻿using DTOMaker.Models;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -8,12 +8,6 @@ using System.Linq;
 
 namespace DTOMaker.Generator
 {
-    //public static class Constants
-    //{
-    //    public const string DomainAttribute = nameof(DomainAttribute);
-    //    public const string EntityAttribute = nameof(EntityAttribute);
-    //    public const string MemberAttribute = nameof(MemberAttribute);
-    //}
     internal class SyntaxReceiver : ISyntaxContextReceiver
     {
         private static T TryGetValue<T>(object? input, T defaultValue) => input is T value ? value : defaultValue;
