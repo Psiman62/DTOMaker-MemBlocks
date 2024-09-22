@@ -11,8 +11,9 @@ namespace MyOrg.Models
     {
         private const int BlockSize = 64;
         private readonly Memory<byte> _block = new byte[BlockSize];
+        public ReadOnlyMemory<byte> Block => _block;
         public MyOtherDTO() { }
-        public MyOtherDTO(Memory<byte> source) => (source.Length <= BlockSize ? source : source.Slice(0, BlockSize)).CopyTo(_block);
+        public MyOtherDTO(ReadOnlySpan<byte> source) => source.Slice(0, BlockSize).CopyTo(_block);
         // <field-map>
         //  Pos.  Len.  Type        Endian  Name
         //  ----  ----  --------    ------  --------
