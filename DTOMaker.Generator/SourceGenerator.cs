@@ -98,7 +98,7 @@ namespace DTOMaker.Generator
                                     private readonly Memory<byte> _block;
                                     public ReadOnlyMemory<byte> Block => _block;
                                     public {{entity.Name}}() => _block = new byte[BlockSize];
-                                    public {{entity.Name}}(ReadOnlySpan<byte> source) => source.Slice(0, BlockSize).ToArray();
+                                    public {{entity.Name}}(ReadOnlySpan<byte> source) => _block = source.Slice(0, BlockSize).ToArray();
                             """;
                         string entityTail =
                             """

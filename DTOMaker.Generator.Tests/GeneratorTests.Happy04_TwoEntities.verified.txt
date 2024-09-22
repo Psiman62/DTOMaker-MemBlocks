@@ -13,7 +13,7 @@ namespace MyOrg.Models
         private readonly Memory<byte> _block;
         public ReadOnlyMemory<byte> Block => _block;
         public MyOtherDTO() => _block = new byte[BlockSize];
-        public MyOtherDTO(ReadOnlySpan<byte> source) => source.Slice(0, BlockSize).ToArray();
+        public MyOtherDTO(ReadOnlySpan<byte> source) => _block = source.Slice(0, BlockSize).ToArray();
         // <field-map>
         //  Pos.  Len.  Type        Endian  Name
         //  ----  ----  --------    ------  --------
