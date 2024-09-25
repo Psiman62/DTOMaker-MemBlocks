@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace DTOMaker.Generator
 {
-    internal sealed class TargetEntity : TargetBase
+    public sealed class TargetEntity : TargetBase
     {
         public ConcurrentDictionary<string, TargetMember> Members { get; } = new ConcurrentDictionary<string, TargetMember>();
         public TargetEntity(string name, Location location) : base(name, location) { }

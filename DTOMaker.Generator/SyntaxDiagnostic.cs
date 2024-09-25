@@ -2,7 +2,7 @@
 
 namespace DTOMaker.Generator
 {
-    internal sealed class SyntaxDiagnostic
+    public sealed class SyntaxDiagnostic
     {
         public readonly Location Location;
         public readonly DiagnosticSeverity Severity;

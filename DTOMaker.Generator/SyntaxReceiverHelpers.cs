@@ -17,28 +17,5 @@ namespace DTOMaker.Generator
                 && candidate.EndsWith(suffix);
         }
 
-        public static bool HasOneAttributeNamed(this InterfaceDeclarationSyntax ids, string attributeName)
-        {
-            var allAttributes = ids.AttributeLists.SelectMany(al => al.Attributes).ToArray();
-            if (allAttributes.Length != 1) return false;
-
-            return allAttributes[0].Name is IdentifierNameSyntax ins && ins.IsIdentifierForAttributeName(attributeName);
-        }
-
-        public static bool HasOneAttributeNamed(this ClassDeclarationSyntax cds, string attributeName)
-        {
-            var allAttributes = cds.AttributeLists.SelectMany(al => al.Attributes).ToArray();
-            if (allAttributes.Length != 1) return false;
-
-            return allAttributes[0].Name is IdentifierNameSyntax ins && ins.IsIdentifierForAttributeName(attributeName);
-        }
-
-        public static bool HasOneAttributeNamed(this PropertyDeclarationSyntax pds, string attributeName)
-        {
-            var allAttributes = pds.AttributeLists.SelectMany(al => al.Attributes).ToArray();
-            if (allAttributes.Length != 1) return false;
-
-            return allAttributes[0].Name is IdentifierNameSyntax ins && ins.IsIdentifierForAttributeName(attributeName);
-        }
     }
 }

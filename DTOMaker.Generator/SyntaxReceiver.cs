@@ -8,45 +8,39 @@ using System.Linq;
 
 namespace DTOMaker.Generator
 {
-    internal class SyntaxReceiver : ISyntaxContextReceiver
+    public static class SyntaxReceiverHelper
     {
         private static T TryGetValue<T>(object? input, T defaultValue) => input is T value ? value : defaultValue;
 
-        public ConcurrentDictionary<string, TargetDomain> Domains { get; } = new ConcurrentDictionary<string, TargetDomain>();
-
-        public void OnVisitSyntaxNode(GeneratorSyntaxContext context)
+        public static void ProcessNode(GeneratorSyntaxContext context, ConcurrentDictionary<string, TargetDomain> domains)
         {
-            if (context.Node is InterfaceDeclarationSyntax ids1
-                && ids1.Modifiers.Any(SyntaxKind.PublicKeyword)
-                && ids1.Parent is NamespaceDeclarationSyntax nds1
-                && ids1.AttributeLists.Count > 0
-                && ids1.HasOneAttributeNamed(nameof(EntityAttribute)))
+            if (context.Node is InterfaceDeclarationSyntax ids
+                && ids.Modifiers.Any(SyntaxKind.PublicKeyword)
+                && context.SemanticModel.GetDeclaredSymbol(ids) is INamedTypeSymbol idsSymbol)
             {
-                Location ndsLocation = Location.Create(nds1.SyntaxTree, nds1.Span);
-                Location idsLocation = Location.Create(ids1.SyntaxTree, ids1.Span);
-                var domain = Domains.GetOrAdd(nds1.Name.ToString(), (n) => new TargetDomain(n, ndsLocation));
-                string interfaceName = ids1.Identifier.Text;
-                if (interfaceName.Length <= 1 || !interfaceName.StartsWith("I"))
+                if (ids.Parent is NamespaceDeclarationSyntax nds && ids.AttributeLists.Count > 0)
                 {
-                    domain.SyntaxErrors.Add(
-                        new SyntaxDiagnostic(idsLocation, DiagnosticSeverity.Error,
-                            $"Expected interface named '{interfaceName}' to start with 'I'."));
-                }
-                else
-                {
+                    Location ndsLocation = Location.Create(nds.SyntaxTree, nds.Span);
+                    Location idsLocation = Location.Create(ids.SyntaxTree, ids.Span);
+                    var domain = domains.GetOrAdd(nds.Name.ToString(), (n) => new TargetDomain(n, ndsLocation));
+                    string interfaceName = ids.Identifier.Text;
+                    if (interfaceName.Length <= 1 || !interfaceName.StartsWith("I"))
+                    {
+                        domain.SyntaxErrors.Add(
+                            new SyntaxDiagnostic(idsLocation, DiagnosticSeverity.Error,
+                                $"Expected interface named '{interfaceName}' to start with 'I'."));
+                    }
                     string entityName = interfaceName.Substring(1);
                     var entity = domain.Entities.GetOrAdd(entityName, (n) => new TargetEntity(n, idsLocation));
-                    if (context.SemanticModel.GetDeclaredSymbol(ids1) is not INamedTypeSymbol symbol)
+                    if (idsSymbol.GetAttributes().FirstOrDefault(a => a.AttributeClass?.Name == nameof(EntityAttribute)) is AttributeData entityAttr)
                     {
-                        entity.SyntaxErrors.Add(new SyntaxDiagnostic(idsLocation, DiagnosticSeverity.Error,
-                            $"Cannot get symbol from semantic model for: {ids1.Identifier}"));
+                        // found opt-in entity
+                        // todo other entity details such as uniqueid
                     }
-                    else
+                    if (idsSymbol.GetAttributes().FirstOrDefault(a => a.AttributeClass?.Name == nameof(EntityLayoutAttribute)) is AttributeData entityLayoutAttr)
                     {
-                        var attributes = symbol.GetAttributes();
-                        var attribute = attributes[0];
-
-                        var attributeArguments = attribute.ConstructorArguments;
+                        // found entity layout details
+                        var attributeArguments = entityLayoutAttr.ConstructorArguments;
                         if (attributeArguments.Length == 1)
                         {
                             entity.BlockSize = TryGetValue<int>(attributeArguments[0].Value, 0);
@@ -55,59 +49,74 @@ namespace DTOMaker.Generator
                         {
                             entity.SyntaxErrors.Add(
                                 new SyntaxDiagnostic(idsLocation, DiagnosticSeverity.Error,
-                                    $"Expected {nameof(EntityAttribute)} attribute to have 1 argument, but it has {attributeArguments.Length}."));
+                                    $"Expected {nameof(EntityLayoutAttribute)} attribute to have 1 argument, but it has {attributeArguments.Length}."));
                         }
                     }
                 }
             }
 
-            if (context.Node is PropertyDeclarationSyntax pds2
-                && pds2.Parent is InterfaceDeclarationSyntax ids2
-                && ids2.Parent is NamespaceDeclarationSyntax nds2
-                && pds2.AttributeLists.Count > 0
-                && pds2.HasOneAttributeNamed(nameof(MemberAttribute)))
+            if (context.Node is PropertyDeclarationSyntax pds
+                && context.SemanticModel.GetDeclaredSymbol(pds) is IPropertySymbol pdsSymbol)
             {
-                Location pdsLocation = Location.Create(pds2.SyntaxTree, pds2.Span);
-                string domainName = nds2.Name.ToString();
-                string interfaceName = ids2.Identifier.Text;
-                string entityName = interfaceName.Substring(1);
-                if (Domains.TryGetValue(domainName, out var domain)
-                    && domain.Entities.TryGetValue(entityName, out var entity))
+                if (pds.Parent is InterfaceDeclarationSyntax ids2
+                    && ids2.Parent is NamespaceDeclarationSyntax nds2
+                    && pds.AttributeLists.Count > 0)
                 {
-                    var member = entity.Members.GetOrAdd(pds2.Identifier.Text, (n) => new TargetMember(n, pdsLocation));
-                    var symbol = context.SemanticModel.GetDeclaredSymbol(pds2);
-                    if (symbol is null)
+                    string domainName = nds2.Name.ToString();
+                    string interfaceName = ids2.Identifier.Text;
+                    string entityName = interfaceName.Substring(1);
+                    if (domains.TryGetValue(domainName, out var domain)
+                        && domain.Entities.TryGetValue(entityName, out var entity))
                     {
-                        member.SyntaxErrors.Add(new SyntaxDiagnostic(pdsLocation, DiagnosticSeverity.Error,
-                            $"Cannot get symbol from semantic model for: {pds2.Identifier}"));
+                        Location pdsLocation = Location.Create(pds.SyntaxTree, pds.Span);
+                        var member = entity.Members.GetOrAdd(pds.Identifier.Text, (n) => new TargetMember(n, pdsLocation));
+                        if (pdsSymbol.GetAttributes().FirstOrDefault(a => a.AttributeClass?.Name == nameof(MemberAttribute)) is AttributeData memberAttr)
+                        {
+                            var attributeArguments = memberAttr.ConstructorArguments;
+                            if (attributeArguments.Length == 1)
+                            {
+                                member.Sequence = TryGetValue<int>(attributeArguments[0].Value, 0);
+                            }
+                            else
+                            {
+                                member.SyntaxErrors.Add(new SyntaxDiagnostic(pdsLocation, DiagnosticSeverity.Error,
+                                    $"Expected {nameof(MemberAttribute)} attribute to have 1 argument, but it has {attributeArguments.Length}"));
+                            }
+                        }
+                        if (pdsSymbol.GetAttributes().FirstOrDefault(a => a.AttributeClass?.Name == nameof(MemberLayoutAttribute)) is AttributeData memberLayoutAttr)
+                        {
+                            var attributeArguments = memberLayoutAttr.ConstructorArguments;
+                            if (attributeArguments.Length == 3)
+                            {
+                                member.MemberType = pdsSymbol.Type.Name;
+                                member.FieldOffset = TryGetValue<int>(attributeArguments[0].Value, 0);
+                                member.FieldLength = TryGetValue<int>(attributeArguments[1].Value, 0);
+                                member.IsBigEndian = TryGetValue<bool>(attributeArguments[2].Value, false);
+                            }
+                            else
+                            {
+                                member.SyntaxErrors.Add(new SyntaxDiagnostic(pdsLocation, DiagnosticSeverity.Error,
+                                    $"Expected {nameof(MemberLayoutAttribute)} attribute to have 3 arguments, but it has {attributeArguments.Length}"));
+                            }
+                        }
                     }
                     else
                     {
-                        var attributes = symbol.GetAttributes();
-                        var attribute = attributes[0];
-
-                        var attributeArguments = attribute.ConstructorArguments;
-                        if (attributeArguments.Length == 2)
-                        {
-                            int offset = TryGetValue<int>(attributeArguments[0].Value, 0);
-                            int length = TryGetValue<int>(attributeArguments[1].Value, 0);
-                            member.MemberType = symbol.Type.Name;
-                            member.FieldOffset = offset;
-                            member.FieldLength = length;
-                        }
-                        // else if todo 3 arg ctor includes isBigEndian arg
-                        else
-                        {
-                            member.SyntaxErrors.Add(new SyntaxDiagnostic(pdsLocation, DiagnosticSeverity.Error,
-                                $"Expected {nameof(MemberAttribute)} attribute to have 1 argument, but it has {attributeArguments.Length}"));
-                        }
+                        // ignore orphan member
                     }
                 }
-                else
-                {
-                    // ignore orphan member
-                }
             }
+        }
+    }
+
+    internal class SyntaxReceiver : ISyntaxContextReceiver
+    {
+        public ConcurrentDictionary<string, TargetDomain> Domains { get; } = new ConcurrentDictionary<string, TargetDomain>();
+
+
+        public void OnVisitSyntaxNode(GeneratorSyntaxContext context)
+        {
+            SyntaxReceiverHelper.ProcessNode(context, Domains);
         }
     }
 }

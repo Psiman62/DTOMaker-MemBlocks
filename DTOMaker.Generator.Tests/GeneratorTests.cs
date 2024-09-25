@@ -28,7 +28,8 @@ namespace DTOMaker.Generator.Tests
                 using DTOMaker.Models;
                 namespace MyOrg.Models
                 {
-                    [Entity(64)]
+                    [Entity()]
+                    [EntityLayout(64)]
                     public interface IMyDTO
                     {
                     }
@@ -57,10 +58,13 @@ namespace DTOMaker.Generator.Tests
                 using DTOMaker.Models;
                 namespace MyOrg.Models
                 {
-                    [Entity(64)]
+                    [Entity()]
+                    [EntityLayout(64)]
                     public interface IMyDTO
                     {
-                        [Member(0, 8)] double Field1 { get; set; }
+                        [Member(1)] 
+                        [MemberLayout(0, 8)]
+                        double Field1 { get; set; }
                     }
                 }
                 """;
@@ -87,11 +91,17 @@ namespace DTOMaker.Generator.Tests
                 using DTOMaker.Models;
                 namespace MyOrg.Models
                 {
-                    [Entity(64)]
+                    [Entity()]
+                    [EntityLayout(64)]
                     public interface IMyDTO
                     {
-                        [Member(0, 8)] double Field1 { get; set; }
-                        [Member(8, 8)] long Field2 { get; set; }
+                        [Member(1)]
+                        [MemberLayout(0, 8)] 
+                        double Field1 { get; set; }
+
+                        [Member(2)]
+                        [MemberLayout(8, 8)] 
+                        long Field2 { get; set; }
                     }
                 }
                 """;
@@ -118,16 +128,22 @@ namespace DTOMaker.Generator.Tests
                 using DTOMaker.Models;
                 namespace MyOrg.Models
                 {
-                    [Entity(64)]
+                    [Entity()]
+                    [EntityLayout(64)]
                     public interface IMyFirstDTO
                     {
-                        [Member(0, 8)] double Field1 { get; set; }
+                        [Member(1)]
+                        [MemberLayout(0, 8)] 
+                        double Field1 { get; set; }
                     }
 
-                    [Entity(64)]
+                    [Entity()]
+                    [EntityLayout(64)]
                     public interface IMyOtherDTO
                     {
-                        [Member(0, 8)] long Field1 { get; set; }
+                        [Member(1)]
+                        [MemberLayout(0, 8)]
+                        long Field1 { get; set; }
                     }
                 }
                 """;
@@ -160,7 +176,8 @@ namespace DTOMaker.Generator.Tests
                 using DTOMaker.Models;
                 namespace MyOrg.Models
                 {
-                    [Entity(63)]
+                    [Entity()]
+                    [EntityLayout(63)]
                     public interface IMyDTO
                     {
                     }
@@ -188,7 +205,9 @@ namespace DTOMaker.Generator.Tests
                 {
                     public interface IMyDTO
                     {
-                        [Member(0, 8)] double Field1 { get; set; }
+                        [Member(1)]
+                        [MemberLayout(0, 8)] 
+                        double Field1 { get; set; }
                     }
                 }
                 """;

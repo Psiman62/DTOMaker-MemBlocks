@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace DTOMaker.Generator
 {
-    internal abstract class TargetBase
+    public abstract class TargetBase
     {
         protected Location _location;
         public string Name { get; }

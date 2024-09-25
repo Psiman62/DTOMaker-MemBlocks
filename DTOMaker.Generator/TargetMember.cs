@@ -3,9 +3,10 @@ using System.Collections.Generic;
 
 namespace DTOMaker.Generator
 {
-    internal sealed class TargetMember : TargetBase
+    public sealed class TargetMember : TargetBase
     {
         public TargetMember(string name, Location location) : base(name, location) { }
+        public int Sequence { get; set; }
         public string MemberType { get; set; } = "";
         public int FieldOffset { get; set; }
         public int FieldLength { get; set; }
@@ -17,6 +18,7 @@ namespace DTOMaker.Generator
         {
             return !string.IsNullOrWhiteSpace(Name)
                 && !string.IsNullOrWhiteSpace(MemberType)
+                && Sequence > 0
                 && FieldOffset >= 0
                 && FieldLength > 0;
         }
@@ -26,6 +28,10 @@ namespace DTOMaker.Generator
             if (string.IsNullOrWhiteSpace(MemberType))
             {
                 yield return new SyntaxDiagnostic(_location, DiagnosticSeverity.Error, $"MemberType'{MemberType}' must be defined");
+            }
+            if (Sequence <= 0)
+            {
+                yield return new SyntaxDiagnostic(_location, DiagnosticSeverity.Error, $"Sequence ({Sequence}) must be > 0");
             }
             if (FieldOffset < 0)
             {
