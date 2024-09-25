@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using DTOMaker.Gentime;
+using Microsoft.CodeAnalysis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -67,7 +68,9 @@ namespace DTOMaker.Generator
             if (context.SyntaxContextReceiver is not SyntaxReceiver syntaxReceiver) return;
 
             // check that the users compilation references the expected libraries
-            CheckReferencedAssemblyNamesInclude(context, typeof(DTOMaker.Models.DomainAttribute).Assembly);
+            CheckReferencedAssemblyNamesInclude(context, typeof(DTOMaker.Runtime.IFieldCodec).Assembly);
+
+            // todo check entity layouts and member layouts have been defined
 
             foreach (var domain in syntaxReceiver.Domains.Values)
             {
