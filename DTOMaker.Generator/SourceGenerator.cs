@@ -93,7 +93,7 @@ namespace DTOMaker.Generator
                             #pragma warning disable CS0414
                             #nullable enable
                             using System;
-                            namespace {{domain.Name}}
+                            namespace {{domain.Name}}.DTOs
                             {
                                 public partial class {{entity.Name}}
                                 {

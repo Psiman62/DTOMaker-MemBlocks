@@ -5,7 +5,7 @@
 #pragma warning disable CS0414
 #nullable enable
 using System;
-namespace MyOrg.Models
+namespace MyOrg.Models.DTOs
 {
     public partial class MyDTO
     {
