@@ -91,7 +91,7 @@ namespace DTOMaker.MemBlocks
                         #pragma warning disable CS0414
                         #nullable enable
                         using System;
-                        namespace {{domain.Name}}.DTOs
+                        namespace {{domain.Name}}.MemBlocks
                         {
                             public partial class {{entity.Name}}
                             {
