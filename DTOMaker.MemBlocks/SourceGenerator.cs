@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace DTOMaker.Generator
+namespace DTOMaker.MemBlocks
 {
     [Generator(LanguageNames.CSharp)]
     public class SourceGenerator : ISourceGenerator

@@ -2,7 +2,7 @@
 using Microsoft.CodeAnalysis;
 using System.Collections.Concurrent;
 
-namespace DTOMaker.Generator
+namespace DTOMaker.MemBlocks
 {
     internal class SyntaxReceiver : ISyntaxContextReceiver
     {

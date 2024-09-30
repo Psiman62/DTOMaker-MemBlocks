@@ -27,7 +27,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\DTOMaker.Generator\DTOMaker.Generator.csproj" />
+	  <ProjectReference Include="..\DTOMaker.MemBlocks\DTOMaker.MemBlocks.csproj" />
 	</ItemGroup>
 
 </Project>

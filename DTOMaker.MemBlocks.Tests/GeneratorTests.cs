@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using VerifyXunit;
 using Xunit;
 
-namespace DTOMaker.Generator.Tests
+namespace DTOMaker.MemBlocks.Tests
 {
     public class GeneratorTests
     {

@@ -2,7 +2,7 @@
 using Microsoft.CodeAnalysis;
 using System.Collections.Generic;
 
-namespace DTOMaker.Generator
+namespace DTOMaker.MemBlocks
 {
     internal sealed class MemBlockEntity : TargetEntity
     {

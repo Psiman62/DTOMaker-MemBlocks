@@ -1,7 +1,7 @@
 ﻿using DTOMaker.Gentime;
 using Microsoft.CodeAnalysis;
 
-namespace DTOMaker.Generator
+namespace DTOMaker.MemBlocks
 {
     internal sealed class MemBlockDomain : TargetDomain
     {

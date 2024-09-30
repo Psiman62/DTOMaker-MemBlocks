@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DTOMaker.Generator.Tests
+namespace DTOMaker.MemBlocks.Tests
 {
     internal static class GeneratorTestHelper
     {
@@ -53,7 +53,7 @@ namespace DTOMaker.Generator.Tests
 
             // directly create an instance of the generator
             // (Note: in the compiler this is loaded from an assembly, and created via reflection at runtime)
-            var generator = new DTOMaker.Generator.SourceGenerator();
+            var generator = new DTOMaker.MemBlocks.SourceGenerator();
 
             // Create the driver that will control the generation, passing in our generator
             GeneratorDriver driver = CSharpGeneratorDriver.Create(new ISourceGenerator[] { generator });
