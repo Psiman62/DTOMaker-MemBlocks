@@ -18,32 +18,19 @@ namespace DTOMaker.MemBlocks
 
         private void EmitDiagnostics(GeneratorExecutionContext context, TargetBase target)
         {
-            // todo fix msg ids
-            foreach (var message in target.SyntaxErrors)
+            foreach (var diagnostic in target.SyntaxErrors)
             {
-                // report diagnostic
                 context.ReportDiagnostic(
                     Diagnostic.Create(
                         new DiagnosticDescriptor(
-                            "MFNSSG001", "DiagnosticTitle",
-                            message.Message,
-                            "DiagnosticCategory",
-                            message.Severity,
-                            true),
-                    message.Location));
+                            diagnostic.Id, diagnostic.Title, diagnostic.Message, diagnostic.Category, diagnostic.Severity, true), diagnostic.Location));
             }
-            foreach (var message in target.ValidationErrors())
+            foreach (var diagnostic in target.ValidationErrors())
             {
-                // report diagnostic
                 context.ReportDiagnostic(
                     Diagnostic.Create(
                         new DiagnosticDescriptor(
-                            "MFNSSG001", "DiagnosticTitle",
-                            message.Message,
-                            "DiagnosticCategory",
-                            message.Severity,
-                            true),
-                    message.Location));
+                            diagnostic.Id, diagnostic.Title, diagnostic.Message, diagnostic.Category, diagnostic.Severity, true), diagnostic.Location));
             }
         }
         private void CheckReferencedAssemblyNamesInclude(GeneratorExecutionContext context, Assembly assembly)

@@ -14,19 +14,22 @@ namespace DTOMaker.MemBlocks
         {
             return FieldOffset switch
             {
-                null => null, // todo not allowed when required
                 >= 0 => null,
-                _ => new SyntaxDiagnostic(Location, DiagnosticSeverity.Error, $"FieldOffset ({FieldOffset}) must be >= 0")
+                _ => new SyntaxDiagnostic(
+                        DiagnosticId.DMMB0002, "Invalid field offset", DiagnosticCategory.Design, Location, DiagnosticSeverity.Error,
+                        $"FieldOffset ({FieldOffset}) must be >= 0")
             };
         }
 
         private SyntaxDiagnostic? CheckFieldLength()
         {
+            // todo? field length should match datatype and cardinality
             return FieldLength switch
             {
-                null => null, // todo not allowed when required
                 > 0 => null,
-                _ => new SyntaxDiagnostic(Location, DiagnosticSeverity.Error, $"FieldLength ({FieldLength}) must be > 0")
+                _ => new SyntaxDiagnostic(
+                        DiagnosticId.DMMB0003, "Invalid field length", DiagnosticCategory.Design, Location, DiagnosticSeverity.Error,
+                        $"FieldLength ({FieldLength}) must be > 0")
             };
         }
 

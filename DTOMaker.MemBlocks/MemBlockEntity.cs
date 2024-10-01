@@ -4,6 +4,12 @@ using System.Collections.Generic;
 
 namespace DTOMaker.MemBlocks
 {
+    internal static class DiagnosticId
+    {
+        public const string DMMB0001 = nameof(DMMB0001); // Invalid block size
+        public const string DMMB0002 = nameof(DMMB0002); // Invalid field offset
+        public const string DMMB0003 = nameof(DMMB0003); // Invalid field length
+    }
     internal sealed class MemBlockEntity : TargetEntity
     {
         public MemBlockEntity(string name, Location location) : base(name, location) { }
@@ -12,7 +18,6 @@ namespace DTOMaker.MemBlocks
         {
             return BlockSize switch
             {
-                null => null,
                 1 => null,
                 2 => null,
                 4 => null,
@@ -24,8 +29,9 @@ namespace DTOMaker.MemBlocks
                 256 => null,
                 512 => null,
                 1024 => null,
-                _ => new SyntaxDiagnostic(Location, DiagnosticSeverity.Error,
-                    $"BlockSize ({BlockSize}) is invalid. BlockSize must be a power of 2, and between 1 and 1024")
+                _ => new SyntaxDiagnostic(
+                        DiagnosticId.DMMB0001, "Invalid block size", DiagnosticCategory.Design, Location, DiagnosticSeverity.Error,
+                        $"BlockSize ({BlockSize}) is invalid. BlockSize must be a whole power of 2 between 1 and 1024")
             };
         }
 
