@@ -67,7 +67,7 @@ namespace DTOMaker.MemBlocks
                     EmitDiagnostics(context, entity);
                     Version fv = new Version(ThisAssembly.AssemblyFileVersion);
                     string shortVersion = $"{fv.Major}.{fv.Minor}";
-                    string hintName = $"{domain.Name}.{entity.Name}.g.cs";
+                    string hintName = $"{domain.Name}.{entity.Name}.MemBlocks.g.cs";
                     var builder = new StringBuilder();
                     string entityHead =
                         $$"""

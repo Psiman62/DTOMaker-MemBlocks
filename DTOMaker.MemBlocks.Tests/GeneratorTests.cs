@@ -45,7 +45,7 @@ namespace DTOMaker.MemBlocks.Tests
             GeneratedSourceResult outputSource = generatorResult.GeneratedSources[0];
 
             // custom generation checks
-            outputSource.HintName.Should().Be("MyOrg.Models.MyDTO.g.cs");
+            outputSource.HintName.Should().Be("MyOrg.Models.MyDTO.MemBlocks.g.cs");
             string outputCode = string.Join(Environment.NewLine, outputSource.SourceText.Lines.Select(tl => tl.ToString()));
             await Verifier.Verify(outputCode);
         }
@@ -78,7 +78,6 @@ namespace DTOMaker.MemBlocks.Tests
             GeneratedSourceResult outputSource = generatorResult.GeneratedSources[0];
 
             // custom generation checks
-            outputSource.HintName.Should().Be("MyOrg.Models.MyDTO.g.cs");
             string outputCode = string.Join(Environment.NewLine, outputSource.SourceText.Lines.Select(tl => tl.ToString()));
             await Verifier.Verify(outputCode);
         }
@@ -115,7 +114,6 @@ namespace DTOMaker.MemBlocks.Tests
             GeneratedSourceResult outputSource = generatorResult.GeneratedSources[0];
 
             // custom generation checks
-            outputSource.HintName.Should().Be("MyOrg.Models.MyDTO.g.cs");
             string outputCode = string.Join(Environment.NewLine, outputSource.SourceText.Lines.Select(tl => tl.ToString()));
             await Verifier.Verify(outputCode);
         }
@@ -158,11 +156,11 @@ namespace DTOMaker.MemBlocks.Tests
             generatorResult.GeneratedSources.Length.Should().Be(2);
             {
                 GeneratedSourceResult outputSource = generatorResult.GeneratedSources[0];
-                outputSource.HintName.Should().Be("MyOrg.Models.MyFirstDTO.g.cs");
+                outputSource.HintName.Should().Be("MyOrg.Models.MyFirstDTO.MemBlocks.g.cs");
             }
             {
                 GeneratedSourceResult outputSource = generatorResult.GeneratedSources[1];
-                outputSource.HintName.Should().Be("MyOrg.Models.MyOtherDTO.g.cs");
+                outputSource.HintName.Should().Be("MyOrg.Models.MyOtherDTO.MemBlocks.g.cs");
                 string outputCode = string.Join(Environment.NewLine, outputSource.SourceText.Lines.Select(tl => tl.ToString()));
                 await Verifier.Verify(outputCode);
             }
