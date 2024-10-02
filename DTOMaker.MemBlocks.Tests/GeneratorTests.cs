@@ -29,7 +29,7 @@ namespace DTOMaker.MemBlocks.Tests
                 namespace MyOrg.Models
                 {
                     [Entity()]
-                    [EntityLayout(64)]
+                    [EntityLayout(LayoutMethod.Explicit, 64)]
                     public interface IMyDTO
                     {
                     }
@@ -59,7 +59,7 @@ namespace DTOMaker.MemBlocks.Tests
                 namespace MyOrg.Models
                 {
                     [Entity()]
-                    [EntityLayout(64)]
+                    [EntityLayout(LayoutMethod.Explicit, 64)]
                     public interface IMyDTO
                     {
                         [Member(1)] 
@@ -91,7 +91,7 @@ namespace DTOMaker.MemBlocks.Tests
                 namespace MyOrg.Models
                 {
                     [Entity()]
-                    [EntityLayout(64)]
+                    [EntityLayout(LayoutMethod.Explicit, 64)]
                     public interface IMyDTO
                     {
                         [Member(1)]
@@ -127,7 +127,7 @@ namespace DTOMaker.MemBlocks.Tests
                 namespace MyOrg.Models
                 {
                     [Entity()]
-                    [EntityLayout(64)]
+                    [EntityLayout(LayoutMethod.Explicit, 64)]
                     public interface IMyFirstDTO
                     {
                         [Member(1)]
@@ -136,7 +136,7 @@ namespace DTOMaker.MemBlocks.Tests
                     }
 
                     [Entity()]
-                    [EntityLayout(64)]
+                    [EntityLayout(LayoutMethod.Explicit, 64)]
                     public interface IMyOtherDTO
                     {
                         [Member(1)]
@@ -167,7 +167,7 @@ namespace DTOMaker.MemBlocks.Tests
         }
 
         [Fact]
-        public void Fault01_InvalidBlockSize()
+        public void Fault01_InvalidLayoutMethod()
         {
             var inputSource =
                 """
@@ -175,7 +175,33 @@ namespace DTOMaker.MemBlocks.Tests
                 namespace MyOrg.Models
                 {
                     [Entity()]
-                    [EntityLayout(63)]
+                    [EntityLayout(LayoutMethod.Undefined, 64)]
+                    public interface IMyDTO
+                    {
+                    }
+                }
+                """;
+
+            var generatorResult = GeneratorTestHelper.RunSourceGenerator(inputSource, LanguageVersion.LatestMajor);
+            generatorResult.Exception.Should().BeNull();
+            generatorResult.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Info).Should().BeEmpty();
+            generatorResult.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Warning).Should().BeEmpty();
+
+            var errors = generatorResult.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
+            errors.Length.Should().Be(1);
+            errors[0].GetMessage().Should().StartWith("LayoutMethod is not defined.");
+        }
+
+        [Fact]
+        public void Fault02_InvalidBlockSize()
+        {
+            var inputSource =
+                """
+                using DTOMaker.Models;
+                namespace MyOrg.Models
+                {
+                    [Entity()]
+                    [EntityLayout(LayoutMethod.Explicit, 63)]
                     public interface IMyDTO
                     {
                     }
@@ -193,7 +219,7 @@ namespace DTOMaker.MemBlocks.Tests
         }
 
         [Fact]
-        public void Fault02_OrphanMember()
+        public void Fault03_OrphanMember()
         {
             // note: [Entity] attribute is missing
             var inputSource =
@@ -219,6 +245,37 @@ namespace DTOMaker.MemBlocks.Tests
             // custom generation checks
             generatorResult.GeneratedSources.Length.Should().Be(0);
         }
+
+        [Fact]
+        public void Fault04_InvalidMemberOffset_Lo()
+        {
+            var inputSource =
+                """
+                using DTOMaker.Models;
+                namespace MyOrg.Models
+                {
+                    [Entity()]
+                    [EntityLayout(LayoutMethod.Explicit, 64)]
+                    public interface IMyDTO
+                    {
+                        [Member(1)] 
+                        [MemberLayout(-1, 8)]
+                        double Field1 { get; set; }
+                    }
+                }
+                """;
+
+            var generatorResult = GeneratorTestHelper.RunSourceGenerator(inputSource, LanguageVersion.LatestMajor);
+            generatorResult.Exception.Should().BeNull();
+            generatorResult.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Info).Should().BeEmpty();
+            generatorResult.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Warning).Should().BeEmpty();
+
+            var errors = generatorResult.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
+            errors.Length.Should().Be(1);
+            errors[0].GetMessage().Should().Be("FieldOffset (-1) must be >= 0");
+        }
+
+        // todo field offset too hi
 
     }
 }

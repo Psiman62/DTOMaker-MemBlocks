@@ -1,4 +1,5 @@
 ﻿using DTOMaker.Gentime;
+using DTOMaker.Models;
 using Microsoft.CodeAnalysis;
 using System.Collections.Generic;
 
@@ -9,6 +10,7 @@ namespace DTOMaker.MemBlocks
         public const string DMMB0001 = nameof(DMMB0001); // Invalid block size
         public const string DMMB0002 = nameof(DMMB0002); // Invalid field offset
         public const string DMMB0003 = nameof(DMMB0003); // Invalid field length
+        public const string DMMB0004 = nameof(DMMB0004); // Invalid layout method
     }
     internal sealed class MemBlockEntity : TargetEntity
     {
@@ -16,6 +18,9 @@ namespace DTOMaker.MemBlocks
 
         private SyntaxDiagnostic? CheckBlockSizeIsValid()
         {
+            if (LayoutMethod != LayoutMethod.Explicit) 
+                return null;
+
             return BlockSize switch
             {
                 1 => null,
@@ -35,6 +40,21 @@ namespace DTOMaker.MemBlocks
             };
         }
 
+        private SyntaxDiagnostic? CheckLayoutMethodIsSupported()
+        {
+            return LayoutMethod switch
+            {
+                LayoutMethod.Explicit => null,
+                LayoutMethod.SequentialV1 => null,
+                LayoutMethod.Undefined => new SyntaxDiagnostic(
+                        DiagnosticId.DMMB0004, "Invalid layout method", DiagnosticCategory.Design, Location, DiagnosticSeverity.Error,
+                        $"LayoutMethod is not defined."),
+                _ => new SyntaxDiagnostic(
+                        DiagnosticId.DMMB0004, "Invalid layout method", DiagnosticCategory.Design, Location, DiagnosticSeverity.Error,
+                        $"LayoutMethod ({LayoutMethod}) is not supported.")
+            };
+        }
+
         protected override IEnumerable<SyntaxDiagnostic> OnGetValidationDiagnostics()
         {
             foreach (var diagnostic1 in base.OnGetValidationDiagnostics())
@@ -43,8 +63,8 @@ namespace DTOMaker.MemBlocks
             }
 
             SyntaxDiagnostic? diagnostic2;
+            if ((diagnostic2 = CheckLayoutMethodIsSupported()) is not null) yield return diagnostic2;
             if ((diagnostic2 = CheckBlockSizeIsValid()) is not null) yield return diagnostic2;
         }
-
     }
 }
