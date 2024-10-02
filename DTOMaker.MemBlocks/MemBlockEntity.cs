@@ -5,23 +5,28 @@ using System.Collections.Generic;
 
 namespace DTOMaker.MemBlocks
 {
-    internal static class DiagnosticId
-    {
-        public const string DMMB0001 = nameof(DMMB0001); // Invalid block size
-        public const string DMMB0002 = nameof(DMMB0002); // Invalid field offset
-        public const string DMMB0003 = nameof(DMMB0003); // Invalid field length
-        public const string DMMB0004 = nameof(DMMB0004); // Invalid layout method
-    }
     internal sealed class MemBlockEntity : TargetEntity
     {
         public MemBlockEntity(string name, Location location) : base(name, location) { }
 
+        private SyntaxDiagnostic? CheckHasEntityLayoutAttribute()
+        {
+            return !HasEntityLayoutAttribute
+                ? new SyntaxDiagnostic(
+                        DiagnosticId.DMMB0005, "Missing [EntityLayout] attribute", DiagnosticCategory.Design, Location, DiagnosticSeverity.Error,
+                        $"[EntityLayout] attribute is missing.")
+                : null;
+        }
+
         private SyntaxDiagnostic? CheckBlockSizeIsValid()
         {
+            if (!HasEntityLayoutAttribute)
+                return null;
+
             if (LayoutMethod != LayoutMethod.Explicit) 
                 return null;
 
-            return BlockSize switch
+            return BlockLength switch
             {
                 1 => null,
                 2 => null,
@@ -35,13 +40,16 @@ namespace DTOMaker.MemBlocks
                 512 => null,
                 1024 => null,
                 _ => new SyntaxDiagnostic(
-                        DiagnosticId.DMMB0001, "Invalid block size", DiagnosticCategory.Design, Location, DiagnosticSeverity.Error,
-                        $"BlockSize ({BlockSize}) is invalid. BlockSize must be a whole power of 2 between 1 and 1024")
+                        DiagnosticId.DMMB0001, "Invalid block length", DiagnosticCategory.Design, Location, DiagnosticSeverity.Error,
+                        $"BlockLength ({BlockLength}) is invalid. BlockLength must be a whole power of 2 between 1 and 1024")
             };
         }
 
         private SyntaxDiagnostic? CheckLayoutMethodIsSupported()
         {
+            if (!HasEntityLayoutAttribute)
+                return null;
+
             return LayoutMethod switch
             {
                 LayoutMethod.Explicit => null,
@@ -63,8 +71,10 @@ namespace DTOMaker.MemBlocks
             }
 
             SyntaxDiagnostic? diagnostic2;
+            if ((diagnostic2 = CheckHasEntityLayoutAttribute()) is not null) yield return diagnostic2;
             if ((diagnostic2 = CheckLayoutMethodIsSupported()) is not null) yield return diagnostic2;
             if ((diagnostic2 = CheckBlockSizeIsValid()) is not null) yield return diagnostic2;
+            // todo check for member layout overlaps
         }
     }
 }

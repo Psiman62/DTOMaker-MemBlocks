@@ -28,7 +28,7 @@ namespace DTOMaker.MemBlocks.Tests
                 using DTOMaker.Models;
                 namespace MyOrg.Models
                 {
-                    [Entity()]
+                    [Entity]
                     [EntityLayout(LayoutMethod.Explicit, 64)]
                     public interface IMyDTO
                     {
@@ -58,7 +58,7 @@ namespace DTOMaker.MemBlocks.Tests
                 using DTOMaker.Models;
                 namespace MyOrg.Models
                 {
-                    [Entity()]
+                    [Entity]
                     [EntityLayout(LayoutMethod.Explicit, 64)]
                     public interface IMyDTO
                     {
@@ -90,7 +90,7 @@ namespace DTOMaker.MemBlocks.Tests
                 using DTOMaker.Models;
                 namespace MyOrg.Models
                 {
-                    [Entity()]
+                    [Entity]
                     [EntityLayout(LayoutMethod.Explicit, 64)]
                     public interface IMyDTO
                     {
@@ -126,7 +126,7 @@ namespace DTOMaker.MemBlocks.Tests
                 using DTOMaker.Models;
                 namespace MyOrg.Models
                 {
-                    [Entity()]
+                    [Entity]
                     [EntityLayout(LayoutMethod.Explicit, 64)]
                     public interface IMyFirstDTO
                     {
@@ -135,7 +135,7 @@ namespace DTOMaker.MemBlocks.Tests
                         double Field1 { get; set; }
                     }
 
-                    [Entity()]
+                    [Entity]
                     [EntityLayout(LayoutMethod.Explicit, 64)]
                     public interface IMyOtherDTO
                     {
@@ -174,7 +174,7 @@ namespace DTOMaker.MemBlocks.Tests
                 using DTOMaker.Models;
                 namespace MyOrg.Models
                 {
-                    [Entity()]
+                    [Entity]
                     [EntityLayout(LayoutMethod.Undefined, 64)]
                     public interface IMyDTO
                     {
@@ -200,7 +200,7 @@ namespace DTOMaker.MemBlocks.Tests
                 using DTOMaker.Models;
                 namespace MyOrg.Models
                 {
-                    [Entity()]
+                    [Entity]
                     [EntityLayout(LayoutMethod.Explicit, 63)]
                     public interface IMyDTO
                     {
@@ -215,13 +215,13 @@ namespace DTOMaker.MemBlocks.Tests
 
             var errors = generatorResult.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
             errors.Length.Should().Be(1);
-            errors[0].GetMessage().Should().StartWith("BlockSize (63) is invalid.");
+            errors[0].GetMessage().Should().StartWith("BlockLength (63) is invalid.");
         }
 
         [Fact]
         public void Fault03_OrphanMember()
         {
-            // note: [Entity] attribute is missing
+            // note: both [Entity] and [EntityLayout] attributes missing
             var inputSource =
                 """
                 using DTOMaker.Models;
@@ -247,14 +247,129 @@ namespace DTOMaker.MemBlocks.Tests
         }
 
         [Fact]
-        public void Fault04_InvalidMemberOffset_Lo()
+        public void Fault04_MissingEntityAttribute()
+        {
+            // note: [Entity] attribute is missing
+            var inputSource =
+                """
+                using DTOMaker.Models;
+                namespace MyOrg.Models
+                {
+                    [EntityLayout(LayoutMethod.Explicit, 64)]
+                    public interface IMyDTO
+                    {
+                        [Member(1)]
+                        [MemberLayout(0, 8)] 
+                        double Field1 { get; set; }
+                    }
+                }
+                """;
+
+            var generatorResult = GeneratorTestHelper.RunSourceGenerator(inputSource, LanguageVersion.LatestMajor);
+            generatorResult.Exception.Should().BeNull();
+            generatorResult.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Info).Should().BeEmpty();
+            generatorResult.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Warning).Should().BeEmpty();
+
+            var errors = generatorResult.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
+            errors.Length.Should().Be(1);
+            errors[0].GetMessage().Should().Be("[Entity] attribute is missing.");
+        }
+
+        [Fact]
+        public void Fault05_MissingEntityLayoutAttribute()
+        {
+            // note: [EntityLayout] attribute is missing
+            var inputSource =
+                """
+                using DTOMaker.Models;
+                namespace MyOrg.Models
+                {
+                    [Entity]
+                    public interface IMyDTO
+                    {
+                        [Member(1)]
+                        [MemberLayout(0, 8)] 
+                        double Field1 { get; set; }
+                    }
+                }
+                """;
+
+            var generatorResult = GeneratorTestHelper.RunSourceGenerator(inputSource, LanguageVersion.LatestMajor);
+            generatorResult.Exception.Should().BeNull();
+            generatorResult.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Info).Should().BeEmpty();
+            generatorResult.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Warning).Should().BeEmpty();
+
+            var errors = generatorResult.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
+            errors.Length.Should().Be(1);
+            errors[0].GetMessage().Should().Be("[EntityLayout] attribute is missing.");
+        }
+
+        [Fact]
+        public void Fault06_MissingMemberAttribute()
         {
             var inputSource =
                 """
                 using DTOMaker.Models;
                 namespace MyOrg.Models
                 {
-                    [Entity()]
+                    [Entity]
+                    [EntityLayout(LayoutMethod.Explicit, 64)]
+                    public interface IMyDTO
+                    {
+                        [MemberLayout(0, 8)]
+                        double Field1 { get; set; }
+                    }
+                }
+                """;
+
+            var generatorResult = GeneratorTestHelper.RunSourceGenerator(inputSource, LanguageVersion.LatestMajor);
+            generatorResult.Exception.Should().BeNull();
+            generatorResult.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Info).Should().BeEmpty();
+            generatorResult.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Warning).Should().BeEmpty();
+
+            var errors = generatorResult.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
+            errors.Length.Should().Be(2);
+            errors[0].GetMessage().Should().Be("Expected member 'Field1' sequence to be 1, but found 0.");
+            errors[1].GetMessage().Should().Be("[Member] attribute is missing.");
+        }
+
+        [Fact]
+        public void Fault07_MissingMemberLayoutAttribute()
+        {
+            var inputSource =
+                """
+                using DTOMaker.Models;
+                namespace MyOrg.Models
+                {
+                    [Entity]
+                    [EntityLayout(LayoutMethod.Explicit, 64)]
+                    public interface IMyDTO
+                    {
+                        [Member(1)]
+                        double Field1 { get; set; }
+                    }
+                }
+                """;
+
+            var generatorResult = GeneratorTestHelper.RunSourceGenerator(inputSource, LanguageVersion.LatestMajor);
+            generatorResult.Exception.Should().BeNull();
+            generatorResult.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Info).Should().BeEmpty();
+            generatorResult.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Warning).Should().BeEmpty();
+
+            var errors = generatorResult.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
+            errors.Length.Should().Be(1);
+            errors[0].GetMessage().Should().Be("[MemberLayout] attribute is missing.");
+        }
+
+        [Fact]
+        public void Fault08_InvalidMemberOffset_Lo()
+        {
+            var inputSource =
+                """
+                using DTOMaker.Models;
+                namespace MyOrg.Models
+                {
+                    [Entity]
                     [EntityLayout(LayoutMethod.Explicit, 64)]
                     public interface IMyDTO
                     {

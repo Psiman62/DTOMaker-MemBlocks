@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
@@ -13,7 +12,7 @@
 		<Product>DTOMaker</Product>
 		<Authors>Psiman62 Contributors</Authors>
 		<Title>DTOMaker.MemBlocks</Title>
-		<Description>Model-driven source generator for data transport objects (DTOs).</Description>
+		<Description>Model-driven source generator for MemBlocks data transport objects (DTOs).</Description>
 		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 		<EnableNETAnalyzers>True</EnableNETAnalyzers>
@@ -22,6 +21,7 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageTags>generator; roslyn</PackageTags>
 		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+		<EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
 	</PropertyGroup>
 
 	<PropertyGroup>
@@ -35,7 +35,7 @@
 		<!-- Package the generator in the analyzer directory of the nuget package -->
 		<None Include="$(OutputPath)$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 		<!-- Private dependencies of this generator that consumers of this generator will not reference. -->
-		<PackageReference Include="DTOMaker.Core" Version="0.9.5" PrivateAssets="all" GeneratePathProperty="true" />
+		<PackageReference Include="DTOMaker.Core" Version="0.10.3" PrivateAssets="all" GeneratePathProperty="true" />
 	</ItemGroup>
 
 	<ItemGroup>

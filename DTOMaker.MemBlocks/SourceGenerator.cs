@@ -82,7 +82,7 @@ namespace DTOMaker.MemBlocks
                         {
                             public partial class {{entity.Name}}
                             {
-                                private const int BlockSize = {{entity.BlockSize}};
+                                private const int BlockSize = {{entity.BlockLength}};
                                 private readonly Memory<byte> _block;
                                 public ReadOnlyMemory<byte> Block => _block;
                                 public {{entity.Name}}() => _block = new byte[BlockSize];

@@ -10,8 +10,19 @@ namespace DTOMaker.MemBlocks
 
         public string CodecTypeName => $"DTOMaker.Runtime.Codec_{MemberType}_{(IsBigEndian ? "BE" : "LE")}";
 
-        private SyntaxDiagnostic? CheckFieldOffset()
+        private SyntaxDiagnostic? CheckHasMemberLayoutAttribute()
         {
+            return !HasMemberLayoutAttribute
+                ? new SyntaxDiagnostic(
+                        DiagnosticId.DMMB0006, "Missing [MemberLayout] attribute", DiagnosticCategory.Design, Location, DiagnosticSeverity.Error,
+                        $"[MemberLayout] attribute is missing.")
+                : null;
+        }
+        private SyntaxDiagnostic? CheckFieldOffsetIsValid()
+        {
+            if (!HasMemberLayoutAttribute)
+                return null;
+
             return FieldOffset switch
             {
                 >= 0 => null,
@@ -21,8 +32,11 @@ namespace DTOMaker.MemBlocks
             };
         }
 
-        private SyntaxDiagnostic? CheckFieldLength()
+        private SyntaxDiagnostic? CheckFieldLengthIsValid()
         {
+            if (!HasMemberLayoutAttribute)
+                return null;
+
             // todo? field length should match datatype and cardinality
             return FieldLength switch
             {
@@ -41,8 +55,9 @@ namespace DTOMaker.MemBlocks
             }
 
             SyntaxDiagnostic? diagnostic2;
-            if ((diagnostic2 = CheckFieldOffset()) is not null) yield return diagnostic2;
-            if ((diagnostic2 = CheckFieldLength()) is not null) yield return diagnostic2;
+            if ((diagnostic2 = CheckHasMemberLayoutAttribute()) is not null) yield return diagnostic2;
+            if ((diagnostic2 = CheckFieldOffsetIsValid()) is not null) yield return diagnostic2;
+            if ((diagnostic2 = CheckFieldLengthIsValid()) is not null) yield return diagnostic2;
         }
 
 
