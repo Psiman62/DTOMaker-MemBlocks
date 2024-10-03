@@ -12,14 +12,6 @@ namespace DTOMaker.MemBlocks.Tests
 {
     public class GeneratorTests
     {
-        //[Fact]
-        //public void ConstantsValueChecks()
-        //{
-        //    nameof(DomainAttribute).Should().Be(Constants.DomainAttribute);
-        //    nameof(EntityAttribute).Should().Be(Constants.EntityAttribute);
-        //    nameof(MemberAttribute).Should().Be(Constants.MemberAttribute);
-        //}
-
         [Fact]
         public async Task Happy01_NoMembers()
         {

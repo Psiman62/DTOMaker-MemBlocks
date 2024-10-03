@@ -57,8 +57,6 @@ namespace DTOMaker.MemBlocks
             // check that the users compilation references the expected libraries
             CheckReferencedAssemblyNamesInclude(context, typeof(DTOMaker.Runtime.IFieldCodec).Assembly);
 
-            // todo check entity layouts and member layouts have been defined
-
             foreach (var domain in syntaxReceiver.Domains.Values)
             {
                 EmitDiagnostics(context, domain);

@@ -1,17 +1,26 @@
 ﻿using DTOMaker.Gentime;
+using DTOMaker.Models;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Generic;
 
 namespace DTOMaker.MemBlocks
 {
     internal sealed class MemBlockMember : TargetMember
     {
-        public MemBlockMember(string name, Location location) : base(name, location) { }
+        public MemBlockMember(string name, Location location) : base(name, location)
+        {
+        }
+
+        public LayoutMethod LayoutMethod => Parent?.LayoutMethod ?? LayoutMethod.Undefined;
 
         public string CodecTypeName => $"DTOMaker.Runtime.Codec_{MemberType}_{(IsBigEndian ? "BE" : "LE")}";
 
         private SyntaxDiagnostic? CheckHasMemberLayoutAttribute()
         {
+            if (LayoutMethod == LayoutMethod.SequentialV1)
+                return null;
+
             return !HasMemberLayoutAttribute
                 ? new SyntaxDiagnostic(
                         DiagnosticId.DMMB0006, "Missing [MemberLayout] attribute", DiagnosticCategory.Design, Location, DiagnosticSeverity.Error,

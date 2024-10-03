@@ -9,7 +9,7 @@ namespace MyOrg.Models.MemBlocks
 {
     public partial class MyDTO
     {
-        private const int BlockSize = 64;
+        private const int BlockSize = 8;
         private readonly Memory<byte> _block;
         public ReadOnlyMemory<byte> Block => _block;
         public MyDTO() => _block = new byte[BlockSize];
@@ -18,17 +18,11 @@ namespace MyOrg.Models.MemBlocks
         //  Pos.  Len.  Type        Endian  Name
         //  ----  ----  --------    ------  --------
         //     0     8  Double      Little  Field1
-        //     8     8  Int64       Little  Field2
         // </field-map>
         public Double Field1
         {
-            get => DTOMaker.Runtime.Codec_Double_LE.Instance.ReadFrom(_block.Slice(0, 8).Span);
-            set => DTOMaker.Runtime.Codec_Double_LE.Instance.WriteTo(_block.Slice(0, 8).Span, value);
-        }
-        public Int64 Field2
-        {
-            get => DTOMaker.Runtime.Codec_Int64_LE.Instance.ReadFrom(_block.Slice(8, 8).Span);
-            set => DTOMaker.Runtime.Codec_Int64_LE.Instance.WriteTo(_block.Slice(8, 8).Span, value);
+            get => DTOMaker.Runtime.Codec_Double_LE.Instance.ReadFrom(_block.Slice(0, 0).Span);
+            set => DTOMaker.Runtime.Codec_Double_LE.Instance.WriteTo(_block.Slice(0, 0).Span, value);
         }
     }
 }
