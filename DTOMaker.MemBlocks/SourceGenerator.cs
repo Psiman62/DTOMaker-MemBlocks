@@ -55,7 +55,15 @@ namespace DTOMaker.MemBlocks
             switch (member.MemberType)
             {
                 case "Boolean":
+                case "Byte":
+                case "SByte":
                     return 1;
+                case "Int16":
+                case "UInt16":
+                    return 2;
+                case "Int32":
+                case "UInt32":
+                    return 4;
                 case "Int64":
                 case "UInt64":
                 case "Double": 
