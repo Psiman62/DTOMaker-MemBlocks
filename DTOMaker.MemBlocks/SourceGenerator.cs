@@ -178,8 +178,8 @@ namespace DTOMaker.MemBlocks
                             $$"""
                                     public {{member.MemberType}} {{member.Name}}
                                     {
-                                        get => {{member.CodecTypeName}}.Instance.ReadFrom(_block.Slice({{member.FieldOffset}}, {{member.FieldLength}}).Span);
-                                        set => {{member.CodecTypeName}}.Instance.WriteTo(_block.Slice({{member.FieldOffset}}, {{member.FieldLength}}).Span, value);
+                                        get => {{member.CodecTypeName}}.ReadFromSpan(_block.Slice({{member.FieldOffset}}, {{member.FieldLength}}).Span);
+                                        set => {{member.CodecTypeName}}.WriteToSpan(_block.Slice({{member.FieldOffset}}, {{member.FieldLength}}).Span, value);
                                     }
                             """;
                         builder.AppendLine(memberSource);
