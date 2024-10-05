@@ -79,14 +79,14 @@ namespace DTOMaker.MemBlocks
                 if (member.FieldOffset < 0)
                 {
                     return new SyntaxDiagnostic(
-                        DiagnosticId.DMMB0008, "Member layout issue", DiagnosticCategory.Design, Location, DiagnosticSeverity.Error,
+                        DiagnosticId.DMMB0008, "Member layout issue", DiagnosticCategory.Design, member.Location, DiagnosticSeverity.Error,
                         $"This member extends before the start of the block.");
                 }
 
                 if (member.FieldOffset + member.FieldLength > BlockLength)
                 {
                     return new SyntaxDiagnostic(
-                        DiagnosticId.DMMB0008, "Member layout issue", DiagnosticCategory.Design, Location, DiagnosticSeverity.Error,
+                        DiagnosticId.DMMB0008, "Member layout issue", DiagnosticCategory.Design, member.Location, DiagnosticSeverity.Error,
                         $"This member extends beyond the end of the block.");
                 }
 
@@ -97,7 +97,7 @@ namespace DTOMaker.MemBlocks
                     {
                         int conflictSequence = memberMap[offset];
                         return new SyntaxDiagnostic(
-                            DiagnosticId.DMMB0008, "Member layout issue", DiagnosticCategory.Design, Location, DiagnosticSeverity.Error,
+                            DiagnosticId.DMMB0008, "Member layout issue", DiagnosticCategory.Design, member.Location, DiagnosticSeverity.Error,
                             $"This member overlaps memory assigned to another member (sequence {conflictSequence}).");
                     }
                     else
