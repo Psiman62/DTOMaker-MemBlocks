@@ -72,6 +72,8 @@ namespace DTOMaker.MemBlocks
                 case "UInt64":
                 case "Double": 
                     return 8;
+                case "Guid":
+                    return 16;
                 default:
                     member.SyntaxErrors.Add(
                         new SyntaxDiagnostic(

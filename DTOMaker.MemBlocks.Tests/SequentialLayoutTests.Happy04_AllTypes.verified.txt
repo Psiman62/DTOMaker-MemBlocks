@@ -30,6 +30,7 @@ namespace MyOrg.Models.MemBlocks
         //    11    24     8  Int64       Little  Field11
         //    12    32     8  UInt64      Little  Field12
         //    13    40     8  Double      Little  Field13
+        //    14    48    16  Guid        Little  Field14
         // </field-map>
         public Boolean Field1
         {
@@ -95,6 +96,11 @@ namespace MyOrg.Models.MemBlocks
         {
             get => DTOMaker.Runtime.Codec_Double_LE.ReadFromSpan(_block.Slice(40, 8).Span);
             set => DTOMaker.Runtime.Codec_Double_LE.WriteToSpan(_block.Slice(40, 8).Span, value);
+        }
+        public Guid Field14
+        {
+            get => DTOMaker.Runtime.Codec_Guid_LE.ReadFromSpan(_block.Slice(48, 16).Span);
+            set => DTOMaker.Runtime.Codec_Guid_LE.WriteToSpan(_block.Slice(48, 16).Span, value);
         }
     }
 }

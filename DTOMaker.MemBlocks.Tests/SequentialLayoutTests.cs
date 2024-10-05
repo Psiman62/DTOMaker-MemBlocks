@@ -129,6 +129,7 @@ namespace DTOMaker.MemBlocks.Tests
                         [Member(11)] long   Field11 { get; set; }
                         [Member(12)] ulong  Field12 { get; set; }
                         [Member(13)] double Field13 { get; set; }
+                        [Member(14)] Guid   Field14 { get; set; }
                     }
                 }
                 """;
