@@ -9,7 +9,7 @@ namespace MyOrg.Models.MemBlocks
 {
     public partial class MyDTO
     {
-        private const int BlockSize = 64;
+        private const int BlockSize = 128;
         private readonly Memory<byte> _block;
         public ReadOnlyMemory<byte> Block => _block;
         public MyDTO() => _block = new byte[BlockSize];
@@ -31,6 +31,8 @@ namespace MyOrg.Models.MemBlocks
         //    12    32     8  UInt64      Little  Field12
         //    13    40     8  Double      Little  Field13
         //    14    48    16  Guid        Little  Field14
+        //    15    64    16  Int128      Little  Field15
+        //    16    80    16  UInt128     Little  Field16
         // </field-map>
         public Boolean Field1
         {
@@ -101,6 +103,16 @@ namespace MyOrg.Models.MemBlocks
         {
             get => DTOMaker.Runtime.Codec_Guid_LE.ReadFromSpan(_block.Slice(48, 16).Span);
             set => DTOMaker.Runtime.Codec_Guid_LE.WriteToSpan(_block.Slice(48, 16).Span, value);
+        }
+        public Int128 Field15
+        {
+            get => DTOMaker.Runtime.Codec_Int128_LE.ReadFromSpan(_block.Slice(64, 16).Span);
+            set => DTOMaker.Runtime.Codec_Int128_LE.WriteToSpan(_block.Slice(64, 16).Span, value);
+        }
+        public UInt128 Field16
+        {
+            get => DTOMaker.Runtime.Codec_UInt128_LE.ReadFromSpan(_block.Slice(80, 16).Span);
+            set => DTOMaker.Runtime.Codec_UInt128_LE.WriteToSpan(_block.Slice(80, 16).Span, value);
         }
     }
 }

@@ -72,6 +72,8 @@ namespace DTOMaker.MemBlocks
                 case "UInt64":
                 case "Double": 
                     return 8;
+                case "Int128":
+                case "UInt128":
                 case "Guid":
                     return 16;
                 default:
