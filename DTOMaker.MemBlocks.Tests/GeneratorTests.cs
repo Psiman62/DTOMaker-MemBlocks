@@ -412,7 +412,5 @@ namespace DTOMaker.MemBlocks.Tests
             errors[0].GetMessage().Should().Be("This member extends beyond the end of the block.");
         }
 
-        // todo field offset too hi
-
     }
 }

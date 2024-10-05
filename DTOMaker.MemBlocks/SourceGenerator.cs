@@ -61,6 +61,7 @@ namespace DTOMaker.MemBlocks
                 case "Int16":
                 case "UInt16":
                 case "Char":
+                case "Half":
                     return 2;
                 case "Int32":
                 case "UInt32":
