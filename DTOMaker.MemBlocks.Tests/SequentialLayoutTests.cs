@@ -132,6 +132,7 @@ namespace DTOMaker.MemBlocks.Tests
                         [Member(14)] Guid    Field14 { get; set; }
                         [Member(15)] Int128  Field15 { get; set; }
                         [Member(16)] UInt128 Field16 { get; set; }
+                        [Member(17)] Decimal Field17 { get; set; }
                     }
                 }
                 """;

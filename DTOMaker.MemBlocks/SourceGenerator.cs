@@ -75,6 +75,7 @@ namespace DTOMaker.MemBlocks
                 case "Int128":
                 case "UInt128":
                 case "Guid":
+                case "Decimal":
                     return 16;
                 default:
                     member.SyntaxErrors.Add(
