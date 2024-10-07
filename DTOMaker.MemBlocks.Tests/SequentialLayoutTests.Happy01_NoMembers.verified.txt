@@ -8,7 +8,7 @@
 using System;
 namespace MyOrg.Models.MemBlocks
 {
-    public partial class MyDTO
+    public partial class MyDTO : IMyDTO
     {
         private const int BlockSize = 0;
         private readonly Memory<byte> _block;

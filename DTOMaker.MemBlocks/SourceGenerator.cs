@@ -163,7 +163,6 @@ namespace DTOMaker.MemBlocks
                     string shortVersion = $"{fv.Major}.{fv.Minor}";
                     string hintName = $"{domain.Name}.{entity.Name}.MemBlocks.g.cs";
                     // entity options
-                    string? implementedInterface = entity.ImplementModelInterface ? $" : I{entity.Name}" : null;
                     var builder = new StringBuilder();
                     string entityHead =
                         $$"""
@@ -177,7 +176,7 @@ namespace DTOMaker.MemBlocks
                         using System;
                         namespace {{domain.Name}}.MemBlocks
                         {
-                            public partial class {{entity.Name}}{{implementedInterface}}
+                            public partial class {{entity.Name}} : I{{entity.Name}}
                             {
                                 private const int BlockSize = {{entity.BlockLength}};
                                 private readonly Memory<byte> _block;
