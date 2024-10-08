@@ -5,16 +5,52 @@
 // </auto-generated>
 #pragma warning disable CS0414
 #nullable enable
+using DTOMaker.Runtime;
 using System;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 namespace MyOrg.Models.MemBlocks
 {
-    public partial class MyDTO : IMyDTO
+    public partial class MyDTO : IMyDTO, IFreezable
     {
         private const int BlockSize = 64;
         private readonly Memory<byte> _block;
         public ReadOnlyMemory<byte> Block => _block;
         public MyDTO() => _block = new byte[BlockSize];
-        public MyDTO(ReadOnlySpan<byte> source) => _block = source.Slice(0, BlockSize).ToArray();
+        public MyDTO(ReadOnlySpan<byte> source) => _block = source.Slice(0, BlockSize).ToArray(); 
+        // todo move to base
+        private volatile bool _frozen;
+        public bool IsFrozen() => _frozen;
+        public IFreezable PartCopy() => new MyDTO(this);
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private void ThrowIsFrozenException(string? methodName) => throw new InvalidOperationException($"Cannot call {methodName} when frozen.");
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private ref T IfNotFrozen<T>(ref T value, [CallerMemberName] string? methodName = null)
+        {
+            if (_frozen) ThrowIsFrozenException(methodName);
+            return ref value;
+        }
+
+        public ValueTask FreezeAsync(IBlobStore store, CancellationToken cancellation)
+        {
+            if (_frozen) return default;
+            _frozen = true;
+            // todo freeze base
+            // todo freeze model type refs
+            return default;
+        }
+
+        public MyDTO(IMyDTO source, bool frozen = false)
+        {
+            _block = new byte[BlockSize];
+            _frozen = frozen;
+            // todo base ctor
+            // todo freezable members
+        }
+
         // <field-map>
         //  Seq.  Off.  Len.  Type        Endian  Name
         //  ----  ----  ----  --------    ------  --------

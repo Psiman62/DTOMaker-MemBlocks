@@ -5,20 +5,40 @@
 // </auto-generated>
 #pragma warning disable CS0414
 #nullable enable
+using DTOMaker.Models;
 using DTOMaker.Runtime;
 using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-namespace MyOrg.Models.MemBlocks
+namespace Sandpit
 {
+    [Entity]
+    [EntityLayout(LayoutMethod.SequentialV1)]
+    public interface IMyDTO
+    {
+        [Member(1)] bool Field1 { get; set; }
+        [Member(2)] sbyte Field2 { get; set; }
+        [Member(3)] byte Field3 { get; set; }
+        [Member(4)] short Field4 { get; set; }
+        [Member(5)] ushort Field5 { get; set; }
+        [Member(6)] char Field6 { get; set; }
+        [Member(8)] int Field8 { get; set; }
+        [Member(9)] uint Field9 { get; set; }
+        [Member(10)] float Field10 { get; set; }
+        [Member(11)] long Field11 { get; set; }
+        [Member(12)] ulong Field12 { get; set; }
+        [Member(13)] double Field13 { get; set; }
+        [Member(14)] Guid Field14 { get; set; }
+        [Member(15)] Decimal Field17 { get; set; }
+    }
     public partial class MyDTO : IMyDTO, IFreezable
     {
         private const int BlockSize = 128;
         private readonly Memory<byte> _block;
         public ReadOnlyMemory<byte> Block => _block;
         public MyDTO() => _block = new byte[BlockSize];
-        public MyDTO(ReadOnlySpan<byte> source) => _block = source.Slice(0, BlockSize).ToArray(); 
+        public MyDTO(ReadOnlySpan<byte> source) => _block = source.Slice(0, BlockSize).ToArray();
         // todo move to base
         private volatile bool _frozen;
         public bool IsFrozen() => _frozen;
@@ -55,7 +75,6 @@ namespace MyOrg.Models.MemBlocks
             this.Field4 = source.Field4;
             this.Field5 = source.Field5;
             this.Field6 = source.Field6;
-            this.Field7 = source.Field7;
             this.Field8 = source.Field8;
             this.Field9 = source.Field9;
             this.Field10 = source.Field10;
@@ -63,8 +82,6 @@ namespace MyOrg.Models.MemBlocks
             this.Field12 = source.Field12;
             this.Field13 = source.Field13;
             this.Field14 = source.Field14;
-            this.Field15 = source.Field15;
-            this.Field16 = source.Field16;
             this.Field17 = source.Field17;
         }
 
@@ -125,12 +142,6 @@ namespace MyOrg.Models.MemBlocks
             set => DTOMaker.Runtime.Codec_Char_LE.WriteToSpan(_block.Slice(8, 2).Span, IfNotFrozen(ref value));
         }
 
-        public Half Field7
-        {
-            get => DTOMaker.Runtime.Codec_Half_LE.ReadFromSpan(_block.Slice(10, 2).Span);
-            set => DTOMaker.Runtime.Codec_Half_LE.WriteToSpan(_block.Slice(10, 2).Span, IfNotFrozen(ref value));
-        }
-
         public Int32 Field8
         {
             get => DTOMaker.Runtime.Codec_Int32_LE.ReadFromSpan(_block.Slice(12, 4).Span);
@@ -173,18 +184,6 @@ namespace MyOrg.Models.MemBlocks
             set => DTOMaker.Runtime.Codec_Guid_LE.WriteToSpan(_block.Slice(48, 16).Span, IfNotFrozen(ref value));
         }
 
-        public Int128 Field15
-        {
-            get => DTOMaker.Runtime.Codec_Int128_LE.ReadFromSpan(_block.Slice(64, 16).Span);
-            set => DTOMaker.Runtime.Codec_Int128_LE.WriteToSpan(_block.Slice(64, 16).Span, IfNotFrozen(ref value));
-        }
-
-        public UInt128 Field16
-        {
-            get => DTOMaker.Runtime.Codec_UInt128_LE.ReadFromSpan(_block.Slice(80, 16).Span);
-            set => DTOMaker.Runtime.Codec_UInt128_LE.WriteToSpan(_block.Slice(80, 16).Span, IfNotFrozen(ref value));
-        }
-
         public Decimal Field17
         {
             get => DTOMaker.Runtime.Codec_Decimal_LE.ReadFromSpan(_block.Slice(96, 16).Span);
@@ -193,3 +192,4 @@ namespace MyOrg.Models.MemBlocks
 
     }
 }
+
