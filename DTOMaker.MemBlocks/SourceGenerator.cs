@@ -186,10 +186,10 @@ namespace DTOMaker.MemBlocks
                                 private readonly Memory<byte> _writableBlock;
                                 private readonly ReadOnlyMemory<byte> _readonlyBlock;
                                 public ReadOnlyMemory<byte> Block => _frozen ? _readonlyBlock : _writableBlock.ToArray();
-                                /// <summary>
-                                /// Always-copy ctor
-                                /// </summary>
-                                public MyDTO(ReadOnlySpan<byte> source, bool frozen)
+
+                                public {{entity.Name}}() => _readonlyBlock = _writableBlock = new byte[BlockLength];
+                       
+                                public {{entity.Name}}(ReadOnlySpan<byte> source, bool frozen)
                                 {
                                     Memory<byte> memory = new byte[BlockLength];
                                     source.Slice(0, BlockLength).CopyTo(memory.Span);
@@ -197,10 +197,7 @@ namespace DTOMaker.MemBlocks
                                     _writableBlock = memory;
                                     _frozen = frozen;
                                 }
-                                /// <summary>
-                                /// Zero-allocation ctor
-                                /// </summary>
-                                public MyDTO(ReadOnlyMemory<byte> source)
+                                public {{entity.Name}}(ReadOnlyMemory<byte> source)
                                 {
                                     if (source.Length >= BlockLength)
                                     {
@@ -208,6 +205,7 @@ namespace DTOMaker.MemBlocks
                                     }
                                     else
                                     {
+                                        // forced copy as source is too short
                                         Memory<byte> memory = new byte[BlockLength];
                                         source.Slice(0, BlockLength).Span.CopyTo(memory.Span);
                                         _readonlyBlock = memory;
@@ -216,7 +214,7 @@ namespace DTOMaker.MemBlocks
                                     _frozen = true;
                                 }
                                 // todo move to base
-                                private volatile bool _frozen;
+                                private volatile bool _frozen = false;
                                 public bool IsFrozen() => _frozen;
                                 public IFreezable PartCopy() => new {{entity.Name}}(this);
 
@@ -238,7 +236,7 @@ namespace DTOMaker.MemBlocks
                                     // todo freeze model type refs
                                     return default;
                                 }
-
+                        
                                 public {{entity.Name}}(I{{entity.Name}} source) : this(ReadOnlySpan<byte>.Empty, false)
                                 {
                                     // todo base ctor

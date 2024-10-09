@@ -38,9 +38,9 @@ namespace Sandpit
         private readonly Memory<byte> _writableBlock;
         private readonly ReadOnlyMemory<byte> _readonlyBlock;
         public ReadOnlyMemory<byte> Block => _frozen ? _readonlyBlock : _writableBlock.ToArray();
-        /// <summary>
-        /// Always-copy ctor
-        /// </summary>
+
+        public MyDTO() => _readonlyBlock = _writableBlock = new byte[BlockLength];
+
         public MyDTO(ReadOnlySpan<byte> source, bool frozen)
         {
             Memory<byte> memory = new byte[BlockLength];
@@ -49,9 +49,6 @@ namespace Sandpit
             _writableBlock = memory;
             _frozen = frozen;
         }
-        /// <summary>
-        /// Zero-allocation ctor
-        /// </summary>
         public MyDTO(ReadOnlyMemory<byte> source)
         {
             if (source.Length >= BlockLength)
@@ -60,6 +57,7 @@ namespace Sandpit
             }
             else
             {
+                // forced copy as source is too short
                 Memory<byte> memory = new byte[BlockLength];
                 source.Slice(0, BlockLength).Span.CopyTo(memory.Span);
                 _readonlyBlock = memory;
@@ -68,7 +66,7 @@ namespace Sandpit
             _frozen = true;
         }
         // todo move to base
-        private volatile bool _frozen;
+        private volatile bool _frozen = false;
         public bool IsFrozen() => _frozen;
         public IFreezable PartCopy() => new MyDTO(this);
 

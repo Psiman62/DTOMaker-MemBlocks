@@ -18,10 +18,10 @@ namespace MyOrg.Models.MemBlocks
         private readonly Memory<byte> _writableBlock;
         private readonly ReadOnlyMemory<byte> _readonlyBlock;
         public ReadOnlyMemory<byte> Block => _frozen ? _readonlyBlock : _writableBlock.ToArray();
-        /// <summary>
-        /// Always-copy ctor
-        /// </summary>
-        public MyDTO(ReadOnlySpan<byte> source, bool frozen)
+
+        public MyOtherDTO() => _readonlyBlock = _writableBlock = new byte[BlockLength];
+
+        public MyOtherDTO(ReadOnlySpan<byte> source, bool frozen)
         {
             Memory<byte> memory = new byte[BlockLength];
             source.Slice(0, BlockLength).CopyTo(memory.Span);
@@ -29,10 +29,7 @@ namespace MyOrg.Models.MemBlocks
             _writableBlock = memory;
             _frozen = frozen;
         }
-        /// <summary>
-        /// Zero-allocation ctor
-        /// </summary>
-        public MyDTO(ReadOnlyMemory<byte> source)
+        public MyOtherDTO(ReadOnlyMemory<byte> source)
         {
             if (source.Length >= BlockLength)
             {
@@ -40,6 +37,7 @@ namespace MyOrg.Models.MemBlocks
             }
             else
             {
+                // forced copy as source is too short
                 Memory<byte> memory = new byte[BlockLength];
                 source.Slice(0, BlockLength).Span.CopyTo(memory.Span);
                 _readonlyBlock = memory;
@@ -48,7 +46,7 @@ namespace MyOrg.Models.MemBlocks
             _frozen = true;
         }
         // todo move to base
-        private volatile bool _frozen;
+        private volatile bool _frozen = false;
         public bool IsFrozen() => _frozen;
         public IFreezable PartCopy() => new MyOtherDTO(this);
 
