@@ -182,11 +182,39 @@ namespace DTOMaker.MemBlocks
                         {
                             public partial class {{entity.Name}} : I{{entity.Name}}, IFreezable
                             {
-                                private const int BlockSize = {{entity.BlockLength}};
-                                private readonly Memory<byte> _block;
-                                public ReadOnlyMemory<byte> Block => _block;
-                                public {{entity.Name}}() => _block = new byte[BlockSize];
-                                public {{entity.Name}}(ReadOnlySpan<byte> source) => _block = source.Slice(0, BlockSize).ToArray(); 
+                                private const int BlockLength = {{entity.BlockLength}};
+                                private readonly Memory<byte> _writableBlock;
+                                private readonly ReadOnlyMemory<byte> _readonlyBlock;
+                                public ReadOnlyMemory<byte> Block => _frozen ? _readonlyBlock : _writableBlock.ToArray();
+                                /// <summary>
+                                /// Always-copy ctor
+                                /// </summary>
+                                public MyDTO(ReadOnlySpan<byte> source, bool frozen)
+                                {
+                                    Memory<byte> memory = new byte[BlockLength];
+                                    source.Slice(0, BlockLength).CopyTo(memory.Span);
+                                    _readonlyBlock = memory;
+                                    _writableBlock = memory;
+                                    _frozen = frozen;
+                                }
+                                /// <summary>
+                                /// Zero-allocation ctor
+                                /// </summary>
+                                public MyDTO(ReadOnlyMemory<byte> source)
+                                {
+                                    if (source.Length >= BlockLength)
+                                    {
+                                        _readonlyBlock = source.Slice(0, BlockLength);
+                                    }
+                                    else
+                                    {
+                                        Memory<byte> memory = new byte[BlockLength];
+                                        source.Slice(0, BlockLength).Span.CopyTo(memory.Span);
+                                        _readonlyBlock = memory;
+                                    }
+                                    _writableBlock = Memory<byte>.Empty;
+                                    _frozen = true;
+                                }
                                 // todo move to base
                                 private volatile bool _frozen;
                                 public bool IsFrozen() => _frozen;
@@ -211,10 +239,8 @@ namespace DTOMaker.MemBlocks
                                     return default;
                                 }
 
-                                public {{entity.Name}}(I{{entity.Name}} source, bool frozen = false)
+                                public {{entity.Name}}(I{{entity.Name}} source) : this(ReadOnlySpan<byte>.Empty, false)
                                 {
-                                    _block = new byte[BlockSize];
-                                    _frozen = frozen;
                                     // todo base ctor
                                     // todo freezable members
                         """;
@@ -265,8 +291,8 @@ namespace DTOMaker.MemBlocks
                             $$"""
                                     public {{member.MemberType}} {{member.Name}}
                                     {
-                                        get => {{member.CodecTypeName}}.ReadFromSpan(_block.Slice({{member.FieldOffset}}, {{member.FieldLength}}).Span);
-                                        set => {{member.CodecTypeName}}.WriteToSpan(_block.Slice({{member.FieldOffset}}, {{member.FieldLength}}).Span, IfNotFrozen(ref value));
+                                        get => {{member.CodecTypeName}}.ReadFromSpan(_readonlyBlock.Slice({{member.FieldOffset}}, {{member.FieldLength}}).Span);
+                                        set => {{member.CodecTypeName}}.WriteToSpan(_writableBlock.Slice({{member.FieldOffset}}, {{member.FieldLength}}).Span, IfNotFrozen(ref value));
                                     }
 
                             """;

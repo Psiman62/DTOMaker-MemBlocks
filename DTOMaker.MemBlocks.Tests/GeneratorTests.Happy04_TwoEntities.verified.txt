@@ -14,11 +14,39 @@ namespace MyOrg.Models.MemBlocks
 {
     public partial class MyOtherDTO : IMyOtherDTO, IFreezable
     {
-        private const int BlockSize = 64;
-        private readonly Memory<byte> _block;
-        public ReadOnlyMemory<byte> Block => _block;
-        public MyOtherDTO() => _block = new byte[BlockSize];
-        public MyOtherDTO(ReadOnlySpan<byte> source) => _block = source.Slice(0, BlockSize).ToArray(); 
+        private const int BlockLength = 64;
+        private readonly Memory<byte> _writableBlock;
+        private readonly ReadOnlyMemory<byte> _readonlyBlock;
+        public ReadOnlyMemory<byte> Block => _frozen ? _readonlyBlock : _writableBlock.ToArray();
+        /// <summary>
+        /// Always-copy ctor
+        /// </summary>
+        public MyDTO(ReadOnlySpan<byte> source, bool frozen)
+        {
+            Memory<byte> memory = new byte[BlockLength];
+            source.Slice(0, BlockLength).CopyTo(memory.Span);
+            _readonlyBlock = memory;
+            _writableBlock = memory;
+            _frozen = frozen;
+        }
+        /// <summary>
+        /// Zero-allocation ctor
+        /// </summary>
+        public MyDTO(ReadOnlyMemory<byte> source)
+        {
+            if (source.Length >= BlockLength)
+            {
+                _readonlyBlock = source.Slice(0, BlockLength);
+            }
+            else
+            {
+                Memory<byte> memory = new byte[BlockLength];
+                source.Slice(0, BlockLength).Span.CopyTo(memory.Span);
+                _readonlyBlock = memory;
+            }
+            _writableBlock = Memory<byte>.Empty;
+            _frozen = true;
+        }
         // todo move to base
         private volatile bool _frozen;
         public bool IsFrozen() => _frozen;
@@ -43,10 +71,8 @@ namespace MyOrg.Models.MemBlocks
             return default;
         }
 
-        public MyOtherDTO(IMyOtherDTO source, bool frozen = false)
+        public MyOtherDTO(IMyOtherDTO source) : this(ReadOnlySpan<byte>.Empty, false)
         {
-            _block = new byte[BlockSize];
-            _frozen = frozen;
             // todo base ctor
             // todo freezable members
             this.Field1 = source.Field1;
@@ -59,8 +85,8 @@ namespace MyOrg.Models.MemBlocks
         // </field-map>
         public Int64 Field1
         {
-            get => DTOMaker.Runtime.Codec_Int64_LE.ReadFromSpan(_block.Slice(0, 8).Span);
-            set => DTOMaker.Runtime.Codec_Int64_LE.WriteToSpan(_block.Slice(0, 8).Span, IfNotFrozen(ref value));
+            get => DTOMaker.Runtime.Codec_Int64_LE.ReadFromSpan(_readonlyBlock.Slice(0, 8).Span);
+            set => DTOMaker.Runtime.Codec_Int64_LE.WriteToSpan(_writableBlock.Slice(0, 8).Span, IfNotFrozen(ref value));
         }
 
     }

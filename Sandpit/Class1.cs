@@ -30,15 +30,43 @@ namespace Sandpit
         [Member(12)] ulong Field12 { get; set; }
         [Member(13)] double Field13 { get; set; }
         [Member(14)] Guid Field14 { get; set; }
-        [Member(15)] Decimal Field17 { get; set; }
+        [Member(17)] Decimal Field17 { get; set; }
     }
     public partial class MyDTO : IMyDTO, IFreezable
     {
-        private const int BlockSize = 128;
-        private readonly Memory<byte> _block;
-        public ReadOnlyMemory<byte> Block => _block;
-        public MyDTO() => _block = new byte[BlockSize];
-        public MyDTO(ReadOnlySpan<byte> source) => _block = source.Slice(0, BlockSize).ToArray();
+        private const int BlockLength = 128;
+        private readonly Memory<byte> _writableBlock;
+        private readonly ReadOnlyMemory<byte> _readonlyBlock;
+        public ReadOnlyMemory<byte> Block => _frozen ? _readonlyBlock : _writableBlock.ToArray();
+        /// <summary>
+        /// Always-copy ctor
+        /// </summary>
+        public MyDTO(ReadOnlySpan<byte> source, bool frozen)
+        {
+            Memory<byte> memory = new byte[BlockLength];
+            source.Slice(0, BlockLength).CopyTo(memory.Span);
+            _readonlyBlock = memory;
+            _writableBlock = memory;
+            _frozen = frozen;
+        }
+        /// <summary>
+        /// Zero-allocation ctor
+        /// </summary>
+        public MyDTO(ReadOnlyMemory<byte> source)
+        {
+            if (source.Length >= BlockLength)
+            {
+                _readonlyBlock = source.Slice(0, BlockLength);
+            }
+            else
+            {
+                Memory<byte> memory = new byte[BlockLength];
+                source.Slice(0, BlockLength).Span.CopyTo(memory.Span);
+                _readonlyBlock = memory;
+            }
+            _writableBlock = Memory<byte>.Empty;
+            _frozen = true;
+        }
         // todo move to base
         private volatile bool _frozen;
         public bool IsFrozen() => _frozen;
@@ -63,10 +91,8 @@ namespace Sandpit
             return default;
         }
 
-        public MyDTO(IMyDTO source, bool frozen = false)
+        public MyDTO(IMyDTO source) : this(ReadOnlySpan<byte>.Empty, false)
         {
-            _block = new byte[BlockSize];
-            _frozen = frozen;
             // todo base ctor
             // todo freezable members
             this.Field1 = source.Field1;
@@ -108,88 +134,87 @@ namespace Sandpit
         // </field-map>
         public Boolean Field1
         {
-            get => DTOMaker.Runtime.Codec_Boolean_LE.ReadFromSpan(_block.Slice(0, 1).Span);
-            set => DTOMaker.Runtime.Codec_Boolean_LE.WriteToSpan(_block.Slice(0, 1).Span, IfNotFrozen(ref value));
+            get => DTOMaker.Runtime.Codec_Boolean_LE.ReadFromSpan(_readonlyBlock.Slice(0, 1).Span);
+            set => DTOMaker.Runtime.Codec_Boolean_LE.WriteToSpan(_writableBlock.Slice(0, 1).Span, IfNotFrozen(ref value));
         }
 
         public SByte Field2
         {
-            get => DTOMaker.Runtime.Codec_SByte_LE.ReadFromSpan(_block.Slice(1, 1).Span);
-            set => DTOMaker.Runtime.Codec_SByte_LE.WriteToSpan(_block.Slice(1, 1).Span, IfNotFrozen(ref value));
+            get => DTOMaker.Runtime.Codec_SByte_LE.ReadFromSpan(_readonlyBlock.Slice(1, 1).Span);
+            set => DTOMaker.Runtime.Codec_SByte_LE.WriteToSpan(_writableBlock.Slice(1, 1).Span, IfNotFrozen(ref value));
         }
 
         public Byte Field3
         {
-            get => DTOMaker.Runtime.Codec_Byte_LE.ReadFromSpan(_block.Slice(2, 1).Span);
-            set => DTOMaker.Runtime.Codec_Byte_LE.WriteToSpan(_block.Slice(2, 1).Span, IfNotFrozen(ref value));
+            get => DTOMaker.Runtime.Codec_Byte_LE.ReadFromSpan(_readonlyBlock.Slice(2, 1).Span);
+            set => DTOMaker.Runtime.Codec_Byte_LE.WriteToSpan(_writableBlock.Slice(2, 1).Span, IfNotFrozen(ref value));
         }
 
         public Int16 Field4
         {
-            get => DTOMaker.Runtime.Codec_Int16_LE.ReadFromSpan(_block.Slice(4, 2).Span);
-            set => DTOMaker.Runtime.Codec_Int16_LE.WriteToSpan(_block.Slice(4, 2).Span, IfNotFrozen(ref value));
+            get => DTOMaker.Runtime.Codec_Int16_LE.ReadFromSpan(_readonlyBlock.Slice(4, 2).Span);
+            set => DTOMaker.Runtime.Codec_Int16_LE.WriteToSpan(_writableBlock.Slice(4, 2).Span, IfNotFrozen(ref value));
         }
 
         public UInt16 Field5
         {
-            get => DTOMaker.Runtime.Codec_UInt16_LE.ReadFromSpan(_block.Slice(6, 2).Span);
-            set => DTOMaker.Runtime.Codec_UInt16_LE.WriteToSpan(_block.Slice(6, 2).Span, IfNotFrozen(ref value));
+            get => DTOMaker.Runtime.Codec_UInt16_LE.ReadFromSpan(_readonlyBlock.Slice(6, 2).Span);
+            set => DTOMaker.Runtime.Codec_UInt16_LE.WriteToSpan(_writableBlock.Slice(6, 2).Span, IfNotFrozen(ref value));
         }
 
         public Char Field6
         {
-            get => DTOMaker.Runtime.Codec_Char_LE.ReadFromSpan(_block.Slice(8, 2).Span);
-            set => DTOMaker.Runtime.Codec_Char_LE.WriteToSpan(_block.Slice(8, 2).Span, IfNotFrozen(ref value));
+            get => DTOMaker.Runtime.Codec_Char_LE.ReadFromSpan(_readonlyBlock.Slice(8, 2).Span);
+            set => DTOMaker.Runtime.Codec_Char_LE.WriteToSpan(_writableBlock.Slice(8, 2).Span, IfNotFrozen(ref value));
         }
 
         public Int32 Field8
         {
-            get => DTOMaker.Runtime.Codec_Int32_LE.ReadFromSpan(_block.Slice(12, 4).Span);
-            set => DTOMaker.Runtime.Codec_Int32_LE.WriteToSpan(_block.Slice(12, 4).Span, IfNotFrozen(ref value));
+            get => DTOMaker.Runtime.Codec_Int32_LE.ReadFromSpan(_readonlyBlock.Slice(12, 4).Span);
+            set => DTOMaker.Runtime.Codec_Int32_LE.WriteToSpan(_writableBlock.Slice(12, 4).Span, IfNotFrozen(ref value));
         }
 
         public UInt32 Field9
         {
-            get => DTOMaker.Runtime.Codec_UInt32_LE.ReadFromSpan(_block.Slice(16, 4).Span);
-            set => DTOMaker.Runtime.Codec_UInt32_LE.WriteToSpan(_block.Slice(16, 4).Span, IfNotFrozen(ref value));
+            get => DTOMaker.Runtime.Codec_UInt32_LE.ReadFromSpan(_readonlyBlock.Slice(16, 4).Span);
+            set => DTOMaker.Runtime.Codec_UInt32_LE.WriteToSpan(_writableBlock.Slice(16, 4).Span, IfNotFrozen(ref value));
         }
 
         public Single Field10
         {
-            get => DTOMaker.Runtime.Codec_Single_LE.ReadFromSpan(_block.Slice(20, 4).Span);
-            set => DTOMaker.Runtime.Codec_Single_LE.WriteToSpan(_block.Slice(20, 4).Span, IfNotFrozen(ref value));
+            get => DTOMaker.Runtime.Codec_Single_LE.ReadFromSpan(_readonlyBlock.Slice(20, 4).Span);
+            set => DTOMaker.Runtime.Codec_Single_LE.WriteToSpan(_writableBlock.Slice(20, 4).Span, IfNotFrozen(ref value));
         }
 
         public Int64 Field11
         {
-            get => DTOMaker.Runtime.Codec_Int64_LE.ReadFromSpan(_block.Slice(24, 8).Span);
-            set => DTOMaker.Runtime.Codec_Int64_LE.WriteToSpan(_block.Slice(24, 8).Span, IfNotFrozen(ref value));
+            get => DTOMaker.Runtime.Codec_Int64_LE.ReadFromSpan(_readonlyBlock.Slice(24, 8).Span);
+            set => DTOMaker.Runtime.Codec_Int64_LE.WriteToSpan(_writableBlock.Slice(24, 8).Span, IfNotFrozen(ref value));
         }
 
         public UInt64 Field12
         {
-            get => DTOMaker.Runtime.Codec_UInt64_LE.ReadFromSpan(_block.Slice(32, 8).Span);
-            set => DTOMaker.Runtime.Codec_UInt64_LE.WriteToSpan(_block.Slice(32, 8).Span, IfNotFrozen(ref value));
+            get => DTOMaker.Runtime.Codec_UInt64_LE.ReadFromSpan(_readonlyBlock.Slice(32, 8).Span);
+            set => DTOMaker.Runtime.Codec_UInt64_LE.WriteToSpan(_writableBlock.Slice(32, 8).Span, IfNotFrozen(ref value));
         }
 
         public Double Field13
         {
-            get => DTOMaker.Runtime.Codec_Double_LE.ReadFromSpan(_block.Slice(40, 8).Span);
-            set => DTOMaker.Runtime.Codec_Double_LE.WriteToSpan(_block.Slice(40, 8).Span, IfNotFrozen(ref value));
+            get => DTOMaker.Runtime.Codec_Double_LE.ReadFromSpan(_readonlyBlock.Slice(40, 8).Span);
+            set => DTOMaker.Runtime.Codec_Double_LE.WriteToSpan(_writableBlock.Slice(40, 8).Span, IfNotFrozen(ref value));
         }
 
         public Guid Field14
         {
-            get => DTOMaker.Runtime.Codec_Guid_LE.ReadFromSpan(_block.Slice(48, 16).Span);
-            set => DTOMaker.Runtime.Codec_Guid_LE.WriteToSpan(_block.Slice(48, 16).Span, IfNotFrozen(ref value));
+            get => DTOMaker.Runtime.Codec_Guid_LE.ReadFromSpan(_readonlyBlock.Slice(48, 16).Span);
+            set => DTOMaker.Runtime.Codec_Guid_LE.WriteToSpan(_writableBlock.Slice(48, 16).Span, IfNotFrozen(ref value));
         }
 
         public Decimal Field17
         {
-            get => DTOMaker.Runtime.Codec_Decimal_LE.ReadFromSpan(_block.Slice(96, 16).Span);
-            set => DTOMaker.Runtime.Codec_Decimal_LE.WriteToSpan(_block.Slice(96, 16).Span, IfNotFrozen(ref value));
+            get => DTOMaker.Runtime.Codec_Decimal_LE.ReadFromSpan(_readonlyBlock.Slice(96, 16).Span);
+            set => DTOMaker.Runtime.Codec_Decimal_LE.WriteToSpan(_writableBlock.Slice(96, 16).Span, IfNotFrozen(ref value));
         }
 
     }
 }
-
