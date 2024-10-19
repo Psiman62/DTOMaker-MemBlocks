@@ -32,6 +32,7 @@ namespace T_DomainName_.MemBlocks
     {
         //##if false
         private const int T_BlockLength_ = 128;
+        private const bool T_MemberObsoleteIsError_ = false;
         //##endif
         private const int BlockLength = T_BlockLength_;
         private readonly Memory<byte> _writableBlock;
@@ -111,11 +112,14 @@ namespace T_DomainName_.MemBlocks
         private const int T_FieldLength_ = 8;
         //##endif
         //##foreach Members
+        //##if MemberIsObsolete
+        [Obsolete("T_MemberObsoleteMessage_", T_MemberObsoleteIsError_)]
+        //##endif
         public T_MemberType_ T_MemberName_
         {
             get
             {
-                //##if MemberIsEnum
+                //##if MemberTypeIsEnum
                 return (T_MemberType_)DTOMaker.Runtime.Codec_T_MemberWireType__T_MemberBELE_.ReadFromSpan(_readonlyBlock.Slice(T_FieldOffset_, T_FieldLength_).Span);
                 //##else
                 return DTOMaker.Runtime.Codec_T_MemberWireType__T_MemberBELE_.ReadFromSpan(_readonlyBlock.Slice(T_FieldOffset_, T_FieldLength_).Span);
@@ -124,7 +128,7 @@ namespace T_DomainName_.MemBlocks
 
             set
             {
-                //##if MemberIsEnum
+                //##if MemberTypeIsEnum
                 T_MemberWireType_ wireValue = (T_MemberWireType_)value;
                 DTOMaker.Runtime.Codec_T_MemberWireType__T_MemberBELE_.WriteToSpan(_writableBlock.Slice(T_FieldOffset_, T_FieldLength_).Span, IfNotFrozen(ref wireValue));
                 //##else
