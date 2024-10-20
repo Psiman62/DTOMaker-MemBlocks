@@ -8,7 +8,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="DTOMaker.Core" Version="0.24.7" />
+	  <PackageReference Include="DTOMaker.Core" Version="0.25.4-dev" />
 	</ItemGroup>
 
 </Project>
